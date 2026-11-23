@@ -1,0 +1,3163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡DESCUBRE LA ANATOMÍA DE UN ROBOT! - UNL | BETEL</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Google Fonts: Inter & Orbitron for futuristic readability -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-cyan: #00e5ff;
+      --neon-yellow: #fde047;
+      --bg-dark: #070d17;
+      --panel-bg: rgba(11, 20, 34, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .font-display {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Futuristic PCB Background Pattern */
+    .pcb-background {
+      background-color: #070d17;
+      background-image: 
+        radial-gradient(circle at 50% 45%, rgba(0, 229, 255, 0.11) 0%, rgba(7, 13, 23, 0.96) 70%),
+        linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    /* Opaque Futuristic Panel */
+    .cyber-panel {
+      background: var(--panel-bg);
+      border: 1.5px solid rgba(0, 229, 255, 0.55);
+      box-shadow: 0 0 22px rgba(0, 229, 255, 0.12), inset 0 0 18px rgba(0, 229, 255, 0.05);
+      border-radius: 1rem;
+    }
+
+    .cyber-panel-yellow {
+      background: var(--panel-bg);
+      border: 1.5px solid rgba(253, 224, 71, 0.7);
+      box-shadow: 0 0 22px rgba(253, 224, 71, 0.14);
+      border-radius: 1rem;
+    }
+
+    /* Neon Title Styling matching user's design */
+    .neon-text-cyan {
+      color: #e0faff;
+      text-shadow:
+        0 0 6px #00e5ff,
+        0 0 14px #00e5ff,
+        0 0 28px rgba(0, 229, 255, 0.75);
+      -webkit-text-stroke: 1px #00e5ff;
+    }
+
+    .neon-text-yellow {
+      color: #fef9c3;
+      text-shadow:
+        0 0 6px #fde047,
+        0 0 14px #facc15,
+        0 0 28px rgba(253, 224, 71, 0.75);
+      -webkit-text-stroke: 1px #fde047;
+    }
+
+    /* Futuristic Interactive Buttons */
+    .btn-cyber {
+      background: linear-gradient(180deg, rgba(14, 34, 56, 0.96) 0%, rgba(8, 20, 36, 0.98) 100%);
+      border: 1.5px solid #00e5ff;
+      color: #e0faff;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-cyber:hover {
+      background: linear-gradient(180deg, rgba(0, 229, 255, 0.25) 0%, rgba(14, 34, 56, 0.98) 100%);
+      box-shadow: 0 0 22px rgba(0, 229, 255, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .btn-cyber:active {
+      transform: translateY(0);
+    }
+
+    .btn-cyber-yellow {
+      background: linear-gradient(180deg, rgba(58, 48, 12, 0.96) 0%, rgba(30, 25, 8, 0.98) 100%);
+      border: 1.5px solid #fde047;
+      color: #fef9c3;
+      box-shadow: 0 4px 15px rgba(253, 224, 71, 0.22);
+      transition: all 0.2s ease;
+    }
+
+    .btn-cyber-yellow:hover {
+      background: linear-gradient(180deg, rgba(253, 224, 71, 0.28) 0%, rgba(42, 35, 10, 0.98) 100%);
+      box-shadow: 0 0 24px rgba(253, 224, 71, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .tab-active {
+      background: rgba(0, 229, 255, 0.22) !important;
+      border-color: #fde047 !important;
+      color: #fde047 !important;
+      box-shadow: 0 0 16px rgba(253, 224, 71, 0.35);
+    }
+
+    /* Custom Scrollbar for inner lists if needed on smaller screens */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(7, 13, 23, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 229, 255, 0.4);
+      border-radius: 9999px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+
+    .sparkle-anim {
+      animation: pulseGlow 2.4s infinite ease-in-out;
+    }
+
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="pcb-background flex flex-col min-h-screen">
+
+  <!-- TOP INSTITUTIONAL HEADER (Universidad Nacional de Loja & Escuela Particular Betel) -->
+  <header class="w-full px-4 sm:px-6 py-2.5 bg-[#060d18]/95 border-b border-cyan-500/40 flex flex-wrap items-center justify-between gap-3 z-30">
+    <div class="flex flex-wrap items-center gap-3 sm:gap-5">
+      <!-- 1. Universidad Nacional de Loja Emblem -->
+      <div class="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-cyan-500/40">
+        <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shadow-[0_0_12px_rgba(0,242,254,0.35)] shrink-0">
+          <svg class="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.5l5 3-5 3-5-3 5-3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 13l5 3 5-3M12 16v3.5" />
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="text-xs sm:text-sm font-extrabold tracking-wide text-cyan-300">Universidad Nacional de Loja</div>
+          <div class="text-[11px] font-medium text-slate-300">Institución de Educación Superior</div>
+        </div>
+      </div>
+
+      <!-- 2. Escuela Particular Betel Emblem -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shadow-[0_0_12px_rgba(253,224,71,0.3)] shrink-0">
+          <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3.5v5.5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6.5L12 3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 11.5l2 2 4-4" />
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="text-xs sm:text-sm font-extrabold tracking-wide text-yellow-300">Escuela Particular Betel</div>
+          <div class="text-[11px] font-medium text-cyan-200/90">6.º Grado de Educación General Básica</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header Controls: Fullscreen Toggle & Audio Toggle -->
+    <div class="flex items-center gap-2">
+      <button id="btn-fullscreen-toggle" onclick="toggleAppFullscreen()" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer" title="Pantalla Completa">
+        <svg class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+        </svg>
+        <span id="btn-fullscreen-label" class="hidden sm:inline">Pantalla Completa</span>
+      </button>
+
+      <button id="btn-sound-toggle" onclick="toggleSound()" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer" title="Activar/Silenciar efectos de sonido">
+        <svg id="icon-sound-on" class="w-4 h-4 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" />
+        </svg>
+        <svg id="icon-sound-off" class="hidden w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" />
+        </svg>
+        <span class="hidden sm:inline">Sonido</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 py-3">
+    <!-- =========================================================
+         1. PANTALLA DE PORTADA (CON MODO RA DE PANTALLA COMPLETA)
+    ========================================================= -->
+    <section id="screen-portada" class="flex-1 flex flex-col lg:flex-row items-center justify-between gap-6 py-2 relative">
+      <!-- Left Column: Institutions, Course, Neon Title, Start Button (Hidden when Fullscreen AR is active) -->
+      <div id="portada-left-col" class="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 z-10">
+        <!-- Institutional & Grade Badges -->
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+          <span class="px-3.5 py-1.5 rounded-full bg-cyan-950/90 border border-cyan-400/70 text-cyan-300 text-xs font-bold">
+            Universidad Nacional de Loja
+          </span>
+          <span class="px-3.5 py-1.5 rounded-full bg-yellow-950/90 border border-yellow-300/70 text-yellow-300 text-xs font-bold">
+            Escuela Particular Betel
+          </span>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#091526] border border-cyan-500/50 text-slate-200 text-xs sm:text-sm font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-yellow-300 animate-ping"></span>
+          <span>Curso: 6.º Grado de Educación General Básica</span>
+        </div>
+
+        <!-- Neon Title matching user reference -->
+        <div class="relative py-2">
+          <div class="flex items-center justify-center lg:justify-start gap-2">
+            <!-- Four-point sparkle icon -->
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white sparkle-anim shrink-0 drop-shadow-[0_0_10px_#00e5ff]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z" />
+            </svg>
+            <h1 class="font-display font-black text-3xl sm:text-4xl xl:text-5xl tracking-wide neon-text-cyan leading-tight">
+              ¡DESCUBRE LA
+            </h1>
+          </div>
+          <h1 class="font-display font-black text-3xl sm:text-4xl xl:text-5xl tracking-wide neon-text-yellow leading-tight mt-1">
+            ANATOMÍA DE UN ROBOT!
+          </h1>
+        </div>
+
+        <p class="text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed">
+          Explora en <span class="text-cyan-300 font-semibold">3D interactivo</span> cómo funciona cada parte de un robot por dentro y por fuera, pon a prueba tus conocimientos y resuelve retos en el laboratorio robótico.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+          <button onclick="navigateTo('menu')" class="btn-cyber-yellow px-8 py-4 rounded-xl font-display font-bold text-lg sm:text-xl tracking-wider flex items-center gap-3 cursor-pointer">
+            <span>Inicio</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+
+          <button onclick="navigateTo('pedagogia')" class="btn-cyber px-5 py-4 rounded-xl font-semibold text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+            <span class="w-6 h-6 rounded-full border border-cyan-400 flex items-center justify-center font-display font-bold text-xs text-yellow-300">i</span>
+            <span>Fundamentación Pedagógica</span>
+          </button>
+
+          <button id="btn-portada-ar" onclick="togglePortadaCameraAR()" class="btn-cyber px-5 py-4 rounded-xl font-semibold text-sm sm:text-base flex items-center gap-2 cursor-pointer border-yellow-300/80 text-yellow-200">
+            <svg class="w-5 h-5 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span id="btn-portada-ar-label">Activar Cámara (RA)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column / Fullscreen AR Stage -->
+      <div id="portada-viewport-box" class="w-full lg:w-1/2 h-[320px] sm:h-[400px] lg:h-[460px] cyber-panel relative overflow-hidden transition-all duration-300">
+        <video id="portada-ar-video" autoplay playsinline muted class="hidden absolute inset-0 w-full h-full object-cover z-0"></video>
+        <div id="canvas-portada-container" class="relative w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
+
+        <!-- Floating AR Controls Overlay (Only visible when Camera AR is active) -->
+        <div id="portada-ar-overlay" class="hidden absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-4 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="px-4 py-2 rounded-full bg-[#060d18]/80 backdrop-blur-md border border-yellow-300/80 text-xs sm:text-sm text-yellow-300 font-bold flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+              <span id="portada-ar-status-text">REALIDAD AUMENTADA • ROBOT PROYECTADO</span>
+            </div>
+
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <button id="btn-portada-ar-disassemble" onclick="togglePortadaARDisassemble()" class="btn-cyber px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-cyan-400 text-cyan-200 cursor-pointer">
+                🔧 Desarmar Robot
+              </button>
+              <button onclick="togglePortadaCameraAR()" class="btn-cyber px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-red-400 text-red-200 cursor-pointer">
+                ✕ Salir de Cámara RA
+              </button>
+              <button onclick="navigateTo('menu')" class="btn-cyber-yellow px-5 py-2 rounded-xl font-display font-bold text-xs sm:text-sm tracking-wider cursor-pointer">
+                Ir al Menú →
+              </button>
+            </div>
+          </div>
+
+          <div class="self-center px-4 py-2 rounded-full bg-[#060d18]/75 backdrop-blur-md border border-cyan-400/60 text-xs sm:text-sm text-cyan-200 font-medium">
+            Arrastra con un dedo para girar el robot • Pellizca o usa rueda para escalar
+          </div>
+        </div>
+
+        <div id="portada-default-hint" class="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between px-3.5 py-2 rounded-lg bg-[#08111e]/90 border border-cyan-500/40 text-xs text-cyan-200 pointer-events-none">
+          <span>Modelo 3D Interactivo • Arrastra para girar el robot</span>
+          <span class="text-yellow-300 font-semibold">Vista 360° / RA</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2B. PANTALLA "MENÚ PRINCIPAL" (CONTENIDO -> VIDEO -> ACTIVIDAD -> EVALUACIÓN)
+    ========================================================= -->
+    <section id="screen-menu" class="hidden flex-1 flex flex-col justify-center items-center py-4">
+      <div class="w-full max-w-4xl space-y-6 text-center">
+        <div class="space-y-2">
+          <span class="px-4 py-1 rounded-full bg-cyan-950 border border-cyan-400/70 text-cyan-300 text-xs font-bold tracking-wider uppercase">
+            Ruta de Aprendizaje Interactivo
+          </span>
+          <h2 class="font-display font-black text-2xl sm:text-4xl neon-text-cyan">
+            MENÚ PRINCIPAL
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
+            Selecciona una sección para explorar la anatomía del robot en 3D, observar la cápsula explicativa, reparar robots averiados o realizar la evaluación.
+          </p>
+        </div>
+
+        <!-- 4 Main Module Cards in Requested Order: Contenido -> Video -> Actividad -> Evaluación -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 text-left">
+          <!-- 1. CONTENIDO -->
+          <button onclick="navigateTo('contenido')" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <svg class="w-7 h-7 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-display font-bold text-yellow-300">1. EXPLORACIÓN 3D</div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Contenido</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Descubre las 5 partes del robot en 3D con narración por voz y el ejemplo práctico de Entrada → Procesamiento → Salida.
+              </p>
+            </div>
+          </button>
+
+          <!-- 2. VIDEO -->
+          <button onclick="openVideoLesson()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+            <div class="w-14 h-14 rounded-2xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <svg class="w-7 h-7 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polygon points="5 3 19 12 5 21 5 3" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-display font-bold text-cyan-300">2. CÁPSULA ANIMADA 3D</div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Video</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Observa la explicación animada en 3D con subtítulos y narración guiada sobre cómo trabaja cada pieza del robot.
+              </p>
+            </div>
+          </button>
+
+          <!-- 3. ACTIVIDAD -->
+          <button onclick="startActivity()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <svg class="w-7 h-7 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-display font-bold text-yellow-300">3. TALLER DE REPARACIÓN 3D</div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Actividad</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Diagnostica y repara 4 modelos de robots diferentes en 3D identificando qué sistema está fallando.
+              </p>
+            </div>
+          </button>
+
+          <!-- 4. EVALUACIÓN -->
+          <button onclick="startEvaluation()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+            <div class="w-14 h-14 rounded-2xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <svg class="w-7 h-7 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div id="btn-menu-eval-sub" class="text-xs font-display font-bold text-cyan-300">4. EVALUACIÓN SUMATIVA (P1–P5)</div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Evaluación</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Responde 5 preguntas clave y recibe retroalimentación general según tu puntuación final.
+              </p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Score status pill & Back to Cover -->
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <div id="eval-last-score-banner" class="hidden px-4 py-2 rounded-full bg-cyan-950 border border-yellow-300 text-xs sm:text-sm font-bold text-yellow-300">
+            Última Evaluación: 0 / 5 aciertos
+          </div>
+          <button onclick="navigateTo('portada')" class="btn-cyber px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer">
+            ← Volver a la Portada
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         3. SECCIÓN "CONTENIDO" (5 PARTES + EJEMPLO ENTRADA -> PROCESAMIENTO -> SALIDA)
+    ========================================================= -->
+    <section id="screen-contenido" class="hidden flex-1 flex flex-col gap-3">
+      <!-- Top Navigation Bar & Part Tabs -->
+      <div class="cyber-panel px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-1.5" id="contenido-tabs">
+          <button onclick="selectPart(0)" id="tab-part-0" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">1. Controlador</button>
+          <button onclick="selectPart(1)" id="tab-part-1" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">2. Sensores</button>
+          <button onclick="selectPart(2)" id="tab-part-2" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">3. Actuadores</button>
+          <button onclick="selectPart(3)" id="tab-part-3" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">4. Energía</button>
+          <button onclick="selectPart(4)" id="tab-part-4" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">5. Chasis</button>
+          <button onclick="openContenidoEjemplo()" id="tab-part-5" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border-yellow-300/70 text-yellow-200">6. Ejemplo</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="remedial-progress-pill" class="hidden px-3 py-1 rounded-full bg-yellow-950 border border-yellow-300 text-yellow-300 text-xs font-bold">
+            Repaso: 0 / 5 piezas
+          </span>
+          <button onclick="navigateTo('menu')" class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">
+            Menú
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Split Layout: Info Panel (Left) + 3D Viewport (Right) -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[450px]">
+        <!-- Left Column (5 cols) -->
+        <div class="lg:col-span-5 cyber-panel p-5 flex flex-col justify-between gap-4">
+          <!-- Mode A: Part Explanation Card -->
+          <div id="contenido-part-card" class="space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span id="part-badge-num" class="px-3 py-1 rounded-full bg-cyan-950 border border-cyan-400/70 font-display font-bold text-xs text-cyan-300">
+                PARTE 1 DE 5
+              </span>
+              <button onclick="speakCurrentPartExplanation()" class="btn-cyber px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer border-yellow-300/70 text-yellow-200">
+                <span id="btn-part-speak-label">🔊 Escuchar</span>
+              </button>
+            </div>
+
+            <div>
+              <h2 id="part-title" class="font-display font-extrabold text-xl sm:text-2xl text-yellow-300">
+                El Controlador (Cerebro)
+              </h2>
+              <p id="part-analogy" class="text-xs sm:text-sm font-semibold text-cyan-300 mt-1">
+                Analogía humana: Es como nuestro cerebro.
+              </p>
+            </div>
+
+            <div class="bg-[#081220] border border-cyan-500/40 rounded-xl p-4 space-y-2.5">
+              <p id="part-concept" class="text-sm sm:text-base text-slate-100 leading-relaxed">
+                Concepto...
+              </p>
+              <div class="pt-1 border-t border-cyan-500/25">
+                <div class="text-xs font-bold uppercase tracking-wider text-yellow-300 mb-1.5">Funciones principales:</div>
+                <ul id="part-functions-list" class="space-y-1.5 text-xs sm:text-sm text-slate-200 list-disc pl-5">
+                </ul>
+              </div>
+            </div>
+
+            <!-- Interactive Demo Trigger -->
+            <div class="bg-[#091627] border border-yellow-300/50 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2">
+              <span id="demo-status-text" class="text-xs text-cyan-200 font-medium flex-1">
+                Pulsa el botón para observar esta pieza en funcionamiento
+              </span>
+              <button onclick="triggerPartDemo()" class="btn-cyber-yellow px-4 py-2 rounded-lg text-xs font-display font-bold cursor-pointer shrink-0">
+                ⚡ Activar Demo
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode B: Ejemplo Práctico (Entrada -> Procesamiento -> Salida) -->
+          <div id="contenido-ejemplo-card" class="hidden space-y-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-3 py-1 rounded-full bg-yellow-950 border border-yellow-300 font-display font-bold text-xs text-yellow-300">
+                EJEMPLO PRÁCTICO EN CADENA
+              </span>
+              <button onclick="speakChainExample()" class="btn-cyber px-3 py-1 rounded-lg text-xs font-bold cursor-pointer border-yellow-300/70 text-yellow-200">
+                🔊 Escuchar
+              </button>
+            </div>
+
+            <h2 class="font-display font-extrabold text-lg sm:text-xl text-white">
+              Entrada → Procesamiento → Salida
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Selecciona una situación real para observar cómo viaja la información por todo el robot en tiempo real:
+            </p>
+
+            <!-- 3 Scenario Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button onclick="runChainScenario('obstaculo')" id="chain-btn-obstaculo" class="btn-cyber px-2.5 py-2 rounded-xl text-xs font-bold cursor-pointer text-center">
+                🚧 Obstáculo al frente
+              </button>
+              <button onclick="runChainScenario('oscuridad')" id="chain-btn-oscuridad" class="btn-cyber px-2.5 py-2 rounded-xl text-xs font-bold cursor-pointer text-center">
+                🌙 Aula oscura
+              </button>
+              <button onclick="runChainScenario('aplauso')" id="chain-btn-aplauso" class="btn-cyber px-2.5 py-2 rounded-xl text-xs font-bold cursor-pointer text-center">
+                👏 Aplauso cercano
+              </button>
+            </div>
+
+            <!-- 3 Pipeline Cards -->
+            <div class="space-y-2">
+              <div id="chain-step-1" class="p-3 rounded-xl bg-[#081220] border border-slate-700 transition-all">
+                <div class="text-xs font-display font-bold text-cyan-300">1. ENTRADA (Sensores)</div>
+                <p id="chain-text-1" class="text-xs sm:text-sm text-slate-200 mt-0.5">El sensor ultrasónico detecta una pared a 20 cm.</p>
+              </div>
+              <div id="chain-step-2" class="p-3 rounded-xl bg-[#081220] border border-slate-700 transition-all">
+                <div class="text-xs font-display font-bold text-yellow-300">2. PROCESAMIENTO (Controlador)</div>
+                <p id="chain-text-2" class="text-xs sm:text-sm text-slate-200 mt-0.5">El microprocesador analiza la distancia y decide frenar y girar.</p>
+              </div>
+              <div id="chain-step-3" class="p-3 rounded-xl bg-[#081220] border border-slate-700 transition-all">
+                <div class="text-xs font-display font-bold text-emerald-300">3. SALIDA (Actuadores)</div>
+                <p id="chain-text-3" class="text-xs sm:text-sm text-slate-200 mt-0.5">Los motores detienen las ruedas y giran el robot hacia un camino libre.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Buttons -->
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-cyan-500/30">
+            <button id="btn-prev-part" onclick="prevPart()" class="btn-cyber px-4 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">
+              ← Anterior
+            </button>
+
+            <button id="btn-next-part" onclick="nextPart()" class="btn-cyber-yellow px-5 py-2 rounded-xl text-xs sm:text-sm font-display font-bold cursor-pointer">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: 3D Interactive Viewer (7 cols) -->
+        <div class="lg:col-span-7 cyber-panel relative overflow-hidden min-h-[360px]">
+          <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <button id="btn-mode-isolated" onclick="setContent3DMode('isolated')" class="btn-cyber tab-active px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Pieza Aislada 3D
+              </button>
+              <button id="btn-mode-robot" onclick="setContent3DMode('robot')" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Ubicación en Robot
+              </button>
+            </div>
+            <span class="px-3 py-1 rounded-lg bg-[#08111e]/90 border border-cyan-500/50 text-xs text-cyan-300 font-semibold">
+              Arrastra para rotar 360°
+            </span>
+          </div>
+
+          <div id="canvas-contenido-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         4. SECCIÓN "EVALUACIÓN" (5 PREGUNTAS SUMATIVAS CON RETROALIMENTACIÓN)
+    ========================================================= -->
+    <section id="screen-evaluacion" class="hidden flex-1 flex flex-col items-center justify-center py-3">
+      <!-- Question Card -->
+      <div id="eval-question-card" class="cyber-panel w-full max-w-3xl p-6 sm:p-8 space-y-5">
+        <div class="flex items-center justify-between gap-3 border-b border-cyan-500/30 pb-3">
+          <span id="eval-q-badge" class="px-3.5 py-1 rounded-full bg-cyan-950 border border-cyan-400 font-display font-bold text-xs sm:text-sm text-cyan-300">
+            PREGUNTA 1 DE 5
+          </span>
+          <span id="eval-score-live" class="font-display font-bold text-xs sm:text-sm text-yellow-300">
+            Aciertos: 0
+          </span>
+        </div>
+
+        <h2 id="eval-q-text" class="font-display font-bold text-lg sm:text-xl text-white leading-snug">
+          Pregunta...
+        </h2>
+
+        <div id="eval-options-container" class="space-y-3">
+        </div>
+
+        <div id="eval-feedback-box" class="hidden p-4 rounded-xl border text-sm leading-relaxed">
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button id="btn-eval-next" onclick="nextEvaluationStep()" class="hidden btn-cyber-yellow px-6 py-2.5 rounded-xl font-display font-bold text-sm cursor-pointer">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+
+      <!-- Final Summative Results & General Feedback Card -->
+      <div id="eval-summary-card" class="hidden cyber-panel w-full max-w-2xl p-6 sm:p-10 text-center space-y-5">
+        <div id="eval-summary-icon" class="w-20 h-20 mx-auto rounded-2xl bg-cyan-950 border-2 border-yellow-300 flex items-center justify-center text-4xl shadow-[0_0_24px_rgba(253,224,71,0.3)]">
+          🏆
+        </div>
+
+        <div class="space-y-1">
+          <span class="px-3.5 py-1 rounded-full bg-cyan-950 border border-cyan-400/60 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+            Resultado Final de Evaluación
+          </span>
+          <h2 id="eval-summary-title" class="font-display font-black text-2xl sm:text-3xl text-yellow-300 pt-2">
+            ¡Excelente Trabajo!
+          </h2>
+          <p id="eval-summary-score" class="font-display font-extrabold text-xl sm:text-2xl text-white">
+            Puntaje: 5 / 5 aciertos
+          </p>
+        </div>
+
+        <div id="eval-summary-feedback-box" class="p-4 sm:p-5 rounded-xl bg-[#081220] border border-cyan-500/40 text-slate-200 text-sm sm:text-base leading-relaxed">
+          Retroalimentación general...
+        </div>
+
+        <div id="eval-summary-actions" class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         5. SECCIÓN "ACTIVIDAD" (TALLER DE REPARACIÓN ROBÓTICA 3D)
+    ========================================================= -->
+    <section id="screen-actividad" class="hidden flex-1 flex flex-col gap-3">
+      <!-- Top Bar -->
+      <div class="cyber-panel px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-display font-bold text-xs sm:text-sm text-yellow-300">
+            TALLER DE REPARACIÓN ROBÓTICA 3D
+          </span>
+          <span id="act-calibrated-count" class="px-3 py-1 rounded-full bg-cyan-950 border border-cyan-400/70 text-xs font-bold text-cyan-300">
+            0 / 4 Reparados
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-act-exploded" onclick="toggleActivityExplodedView()" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+            🔍 Inspección Rayos X
+          </button>
+          <button onclick="resetActivityLab()" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+            ↺ Reiniciar Taller
+          </button>
+          <button onclick="navigateTo('menu')" class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">
+            Menú
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Split Layout: Diagnostic Panel (Left) + 3D Repair Bay (Right) -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[450px]">
+        <!-- Left Column (5 cols) -->
+        <div class="lg:col-span-5 cyber-panel p-4 sm:p-5 flex flex-col justify-between gap-3">
+          <!-- 4 Robot Selector Tabs -->
+          <div id="act-robots-tabs" class="grid grid-cols-2 gap-2">
+          </div>
+
+          <!-- Current Robot Symptom Card -->
+          <div class="bg-[#081220] border border-cyan-500/40 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <h3 id="act-robot-name" class="font-display font-extrabold text-sm sm:text-base text-yellow-300">
+                Robot 1: Rover Explorador 6×6
+              </h3>
+              <span id="act-robot-status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-950 text-red-300 border border-red-400">
+                ⚠ Averiado
+              </span>
+            </div>
+            <p id="act-robot-symptom" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Síntoma...
+            </p>
+          </div>
+
+          <!-- 5 Part Choice Buttons -->
+          <div class="space-y-1.5">
+            <div class="text-xs font-bold uppercase tracking-wider text-cyan-300">
+              ¿Qué pieza debes reparar? (Tócala en 3D o selecciónala):
+            </div>
+            <div id="act-part-choices" class="space-y-1.5">
+            </div>
+          </div>
+
+          <!-- Diagnostic Feedback & Overall Progress -->
+          <div class="space-y-2 pt-1 border-t border-cyan-500/30">
+            <p id="act-diagnostic-feedback" class="text-xs sm:text-sm text-cyan-200 font-medium leading-relaxed">
+              Observa el síntoma, gira el modelo 3D y toca la pieza averiada para repararla.
+            </p>
+            <div class="flex items-center gap-2">
+              <div class="flex-1 h-2.5 rounded-full bg-slate-800 border border-cyan-500/40 overflow-hidden">
+                <div id="act-power-bar" class="h-full bg-gradient-to-r from-cyan-400 to-yellow-300 transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <span id="act-power-pct" class="font-display text-xs font-bold text-yellow-300">0 / 4</span>
+            </div>
+          </div>
+
+          <!-- Completion Banner -->
+          <div id="act-complete-banner" class="hidden p-3 rounded-xl bg-cyan-950/90 border border-yellow-300 text-center space-y-2">
+            <div class="text-xs sm:text-sm font-display font-bold text-yellow-300">
+              🎉 ¡Todos los robots han sido reparados con éxito!
+            </div>
+            <button onclick="startEvaluation()" class="btn-cyber-yellow px-4 py-2 rounded-lg text-xs font-display font-bold cursor-pointer">
+              Ir a Evaluación →
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: 3D Interactive Repair Viewport (7 cols) -->
+        <div class="lg:col-span-7 cyber-panel relative overflow-hidden min-h-[360px]">
+          <div class="absolute top-3 left-3 right-3 z-10 flex items-center justify-between gap-2 pointer-events-none">
+            <span class="px-3 py-1 rounded-lg bg-[#08111e]/90 border border-cyan-500/50 text-xs text-cyan-300 font-semibold">
+              Gira el robot 360° y haz clic sobre la pieza averiada
+            </span>
+            <span id="act-hover-label" class="hidden px-3 py-1 rounded-lg bg-yellow-950/95 border border-yellow-300 text-xs text-yellow-300 font-bold">
+              Pieza
+            </span>
+          </div>
+
+          <div id="canvas-actividad-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2A. PANTALLA "FUNDAMENTACIÓN PEDAGÓGICA" (BASES EDUCATIVAS)
+    ========================================================= -->
+    <section id="screen-pedagogia" class="hidden flex-1 flex flex-col justify-center py-3">
+      <div class="cyber-panel p-6 sm:p-8 max-w-6xl mx-auto w-full space-y-5">
+        <!-- Header Title matching "Bases Educativas" -->
+        <div class="border-b border-cyan-500/30 pb-3">
+          <h2 class="font-display font-extrabold text-xl sm:text-2xl text-yellow-400 tracking-wide">
+            Bases Educativas
+          </h2>
+        </div>
+
+        <!-- 3 Stacked Cards: Indicador / Criterio, Destreza, Objetivo -->
+        <div class="space-y-4">
+          <!-- Card 1: Indicador / Criterio -->
+          <div class="bg-[#081220]/95 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950/90 border border-cyan-400/70 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3.5v5.5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6.5L12 3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 11.5l2 2 4-4" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-bold text-base sm:text-lg text-cyan-300">Indicador de Evaluación:</h3>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <strong class="text-yellow-300 font-bold">Ref. I.CN.3.9.2.</strong> Reconoce los componentes principales de un robot y relaciona cada uno con su función dentro del funcionamiento del sistema.
+              </p>
+            </div>
+          </div>
+
+          <!-- Card 2: Destreza -->
+          <div class="bg-[#081220]/95 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950/90 border border-cyan-400/70 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-bold text-base sm:text-lg text-cyan-300">Destreza con Criterio de Desempeño:</h3>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <strong class="text-yellow-300 font-bold">Ref. CN.3.3.11.</strong> Identificar las partes principales de un robot y explicar sus funciones mediante la observación de imágenes, modelos y ejemplos de robots utilizados en la vida cotidiana.
+              </p>
+            </div>
+          </div>
+
+          <!-- Card 3: Objetivo -->
+          <div class="bg-[#081220]/95 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950/90 border border-cyan-400/70 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="5" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-bold text-base sm:text-lg text-cyan-300">Objetivo de Aprendizaje:</h3>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <strong class="text-yellow-300 font-bold">Ref. O.CN.3.7. / O.R.3.2.</strong> Identificar las partes principales de un robot y explicar la función del controlador, los sensores, los actuadores, la fuente de energía y la estructura física.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Bar: Volver a la Portada + Autor & Contacto Badge -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <button onclick="navigateTo('portada')" class="btn-cyber px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer">
+            <span>← Volver a la Portada</span>
+          </button>
+
+          <div class="px-4 py-2.5 rounded-xl bg-[#091524] border border-yellow-300/70 flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-yellow-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span class="font-bold text-cyan-300">Autor:</span>
+              <span class="text-slate-100 font-medium">Eddy Blacio</span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-yellow-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M22 6l-10 7L2 6" />
+              </svg>
+              <span class="font-bold text-cyan-300">Contacto:</span>
+              <span class="text-slate-100 font-medium">eddy.blacio@unl.edu.ec</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         6. SECCIÓN "VIDEO" (CÁPSULA 3D INTERACTIVA CON ROBOT EN EL CENTRO Y SUBTÍTULOS)
+    ========================================================= -->
+    <section id="screen-video" class="hidden flex-1 flex flex-col items-center justify-center py-2">
+      <div class="cyber-panel w-full max-w-5xl flex-1 min-h-[470px] relative overflow-hidden flex flex-col justify-between">
+        <!-- Minimal Top Bar -->
+        <div class="relative z-20 flex items-center justify-between px-4 sm:px-6 pt-4">
+          <span id="video-scene-badge" class="px-3.5 py-1 rounded-full bg-cyan-950/90 border border-cyan-400/70 font-display font-bold text-xs text-cyan-300">
+            ESCENA 1 / 6 • INTRODUCCIÓN
+          </span>
+          <button onclick="exitVideoLesson()" class="btn-cyber px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">
+            ← Menú
+          </button>
+        </div>
+
+        <!-- Centered 3D Interactive Robot Canvas -->
+        <div id="canvas-video-container" class="absolute inset-0 w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
+
+        <!-- Bottom Subtitles & Essential Controls Overlay -->
+        <div class="relative z-20 px-4 sm:px-8 pb-4 pt-6 flex flex-col items-center gap-3 bg-gradient-to-t from-[#060d18] via-[#060d18]/85 to-transparent">
+          <!-- Subtitles Box -->
+          <div class="w-full max-w-3xl px-5 py-3 rounded-2xl bg-[#07111f]/95 border border-cyan-400/60 text-center shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+            <p id="video-subtitle-text" class="text-white text-base sm:text-lg lg:text-xl font-semibold leading-snug">
+              ¡Hola! Hoy descubriremos cómo funciona un robot por dentro y por fuera.
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full max-w-3xl flex items-center gap-3">
+            <span id="video-time-current" class="font-display text-xs text-cyan-300 w-10 text-right">0:00</span>
+            <div onclick="seekVideoLesson(event)" class="flex-1 h-2.5 rounded-full bg-slate-800 border border-cyan-500/50 overflow-hidden cursor-pointer">
+              <div id="video-progress-fill" class="h-full bg-gradient-to-r from-cyan-400 to-yellow-300 transition-all duration-150" style="width: 0%"></div>
+            </div>
+            <span class="font-display text-xs text-slate-400 w-10">0:48</span>
+          </div>
+
+          <!-- Essential Playback Buttons -->
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="toggleVideoPlayPause()" class="btn-cyber-yellow px-6 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer">
+              <span id="btn-video-play-label">⏸ Pausar</span>
+            </button>
+
+            <button onclick="restartVideoLesson()" class="btn-cyber px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm cursor-pointer">
+              ↺ Reiniciar
+            </button>
+
+            <button onclick="toggleVideoVoice()" class="btn-cyber px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm cursor-pointer">
+              <span id="btn-video-voice-label">🔊 Voz: Activada</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* ============================================================================
+       1. GLOBAL STATE, AUDIO & FULLSCREEN HELPERS
+    ============================================================================ */
+    const scenes = {
+      portada: null,
+      contenido: null,
+      actividad: null,
+      video: null
+    };
+
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playTone(type = 'click') {
+      if (!soundEnabled) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(780, now + 0.08);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } else if (type === 'success') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        gain.gain.setValueAtTime(0.11, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.22);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.start(now);
+        osc.stop(now + 0.24);
+      } else if (type === 'sonar') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1150, now);
+        osc.frequency.exponentialRampToValueAtTime(1580, now + 0.18);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'servo') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.linearRampToValueAtTime(260, now + 0.28);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'charge') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(920, now + 0.32);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+        osc.start(now);
+        osc.stop(now + 0.34);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('icon-sound-on').classList.toggle('hidden', !soundEnabled);
+      document.getElementById('icon-sound-off').classList.toggle('hidden', soundEnabled);
+      if (soundEnabled) playTone('click');
+    }
+
+    function toggleAppFullscreen() {
+      playTone('click');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      const lbl = document.getElementById('btn-fullscreen-label');
+      if (lbl) {
+        lbl.textContent = document.fullscreenElement ? 'Salir Pantalla Completa' : 'Pantalla Completa';
+      }
+    });
+
+    /* ============================================================================
+       2. SCREEN NAVIGATION & PORTADA AUGMENTED REALITY (CAMERA)
+    ============================================================================ */
+    const ALL_SCREENS = ['portada', 'pedagogia', 'menu', 'contenido', 'evaluacion', 'actividad', 'video'];
+    let portadaARStream = null;
+    let portadaARActive = false;
+    let portadaARDisassembled = false;
+
+    function navigateTo(screenKey) {
+      playTone('click');
+      stopPartSpeech();
+      if (screenKey !== 'video') {
+        videoPlaying = false;
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      }
+      if (screenKey !== 'portada' && portadaARActive) {
+        stopPortadaCameraAR();
+      }
+
+      ALL_SCREENS.forEach(s => {
+        const el = document.getElementById('screen-' + s);
+        if (el) el.classList.toggle('hidden', s !== screenKey);
+      });
+
+      if (screenKey === 'portada' && scenes.portada) {
+        requestAnimationFrame(() => resizeThreeViewport(scenes.portada));
+      } else if (screenKey === 'contenido') {
+        requestAnimationFrame(() => {
+          ensureContenidoSceneInitialized();
+          selectPart(currentPartIdx);
+        });
+      } else if (screenKey === 'actividad') {
+        requestAnimationFrame(() => ensureActivitySceneInitialized());
+      } else if (screenKey === 'video') {
+        requestAnimationFrame(() => ensureVideoSceneInitialized());
+      }
+    }
+
+    async function togglePortadaCameraAR() {
+      if (portadaARActive) {
+        stopPortadaCameraAR();
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+          audio: false
+        });
+        portadaARStream = stream;
+        portadaARActive = true;
+
+        const videoEl = document.getElementById('portada-ar-video');
+        videoEl.srcObject = stream;
+        videoEl.classList.remove('hidden');
+
+        document.getElementById('portada-left-col').classList.add('hidden');
+        document.getElementById('portada-default-hint').classList.add('hidden');
+        document.getElementById('portada-ar-overlay').classList.remove('hidden');
+
+        const box = document.getElementById('portada-viewport-box');
+        box.classList.remove('lg:w-1/2', 'h-[320px]', 'sm:h-[400px]', 'lg:h-[460px]', 'cyber-panel');
+        box.classList.add('fixed', 'inset-0', 'w-screen', 'h-screen', 'z-50', 'rounded-none', 'bg-black');
+
+        requestAnimationFrame(() => {
+          if (scenes.portada) resizeThreeViewport(scenes.portada);
+        });
+      } catch (err) {
+        portadaARActive = true;
+        document.getElementById('portada-left-col').classList.add('hidden');
+        document.getElementById('portada-default-hint').classList.add('hidden');
+        document.getElementById('portada-ar-overlay').classList.remove('hidden');
+        document.getElementById('portada-ar-status-text').textContent = 'MODO RA SIMULADO (CÁMARA NO DISPONIBLE EN ESTE NAVEGADOR)';
+
+        const box = document.getElementById('portada-viewport-box');
+        box.classList.remove('lg:w-1/2', 'h-[320px]', 'sm:h-[400px]', 'lg:h-[460px]');
+        box.classList.add('fixed', 'inset-0', 'w-screen', 'h-screen', 'z-50', 'rounded-none');
+
+        requestAnimationFrame(() => {
+          if (scenes.portada) resizeThreeViewport(scenes.portada);
+        });
+      }
+    }
+
+    function stopPortadaCameraAR() {
+      if (portadaARStream) {
+        portadaARStream.getTracks().forEach(t => t.stop());
+        portadaARStream = null;
+      }
+      portadaARActive = false;
+      portadaARDisassembled = false;
+      document.getElementById('btn-portada-ar-disassemble').textContent = '🔧 Desarmar Robot';
+
+      const videoEl = document.getElementById('portada-ar-video');
+      videoEl.srcObject = null;
+      videoEl.classList.add('hidden');
+
+      document.getElementById('portada-left-col').classList.remove('hidden');
+      document.getElementById('portada-default-hint').classList.remove('hidden');
+      document.getElementById('portada-ar-overlay').classList.add('hidden');
+
+      const box = document.getElementById('portada-viewport-box');
+      box.classList.remove('fixed', 'inset-0', 'w-screen', 'h-screen', 'z-50', 'rounded-none', 'bg-black');
+      box.classList.add('lg:w-1/2', 'h-[320px]', 'sm:h-[400px]', 'lg:h-[460px]', 'cyber-panel');
+
+      requestAnimationFrame(() => {
+        if (scenes.portada) resizeThreeViewport(scenes.portada);
+      });
+    }
+
+    function togglePortadaARDisassemble() {
+      playTone('servo');
+      portadaARDisassembled = !portadaARDisassembled;
+      const btn = document.getElementById('btn-portada-ar-disassemble');
+      if (btn) {
+        btn.textContent = portadaARDisassembled ? '🤖 Armar Robot' : '🔧 Desarmar Robot';
+      }
+    }
+
+    /* ============================================================================
+       3. THREE.JS VIEWPORT SETUP & EDUCATIONAL 3D MODELS
+    ============================================================================ */
+    function setupThreeViewport(containerId, options = {}) {
+      const container = document.getElementById(containerId);
+      if (!container) return null;
+
+      const width = container.clientWidth || 500;
+      const height = container.clientHeight || 400;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+      camera.position.set(0, 0.85, options.cameraZ || 5.2);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.18;
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      // Studio Three-Point + Hemisphere Lighting for crisp metallic reflections
+      const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 1.05);
+      scene.add(hemiLight);
+
+      const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.35);
+      dirLight1.position.set(4.5, 7, 5.5);
+      scene.add(dirLight1);
+
+      const rimCyan = new THREE.DirectionalLight(0x00e5ff, 1.25);
+      rimCyan.position.set(-5, 4, -4);
+      scene.add(rimCyan);
+
+      const fillYellow = new THREE.PointLight(0xfde047, 0.85, 14);
+      fillYellow.position.set(3, -2, 4);
+      scene.add(fillYellow);
+
+      // Subtle sci-fi floor grid ring beneath robots for depth
+      const ringGeo = new THREE.RingGeometry(1.45, 1.56, 48);
+      ringGeo.rotateX(-Math.PI / 2);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+      const floorRing = new THREE.Mesh(ringGeo, ringMat);
+      floorRing.position.y = -1.28;
+      scene.add(floorRing);
+
+      let controls = null;
+      if (typeof THREE.OrbitControls === 'function') {
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.enablePan = false;
+        controls.minDistance = 2.6;
+        controls.maxDistance = 9.0;
+      }
+
+      const state = {
+        container,
+        scene,
+        camera,
+        renderer,
+        controls,
+        model: null,
+        rotY: 0,
+        rotX: 0.12,
+        isDragging: false,
+        demoActive: false,
+        demoTimer: 0
+      };
+
+      renderer.domElement.addEventListener('pointerdown', () => { state.isDragging = true; });
+      window.addEventListener('pointerup', () => { state.isDragging = false; });
+
+      return state;
+    }
+
+    function resizeThreeViewport(vp) {
+      if (!vp || !vp.container || !vp.renderer || !vp.camera) return;
+      const w = vp.container.clientWidth || 500;
+      const h = vp.container.clientHeight || 400;
+      vp.camera.aspect = w / h;
+      vp.camera.updateProjectionMatrix();
+      vp.renderer.setSize(w, h);
+    }
+
+    window.addEventListener('resize', () => {
+      Object.values(scenes).forEach(vp => {
+        if (vp) resizeThreeViewport(vp);
+      });
+    });
+
+    function createRobotMaterialPalette() {
+      return {
+        chassisLight: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.62, roughness: 0.22 }),
+        chassisSilver: new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.78, roughness: 0.25 }),
+        chassisDark: new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.72, roughness: 0.32 }),
+        cyanGlow: new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x00d8f5, emissiveIntensity: 0.95, metalness: 0.2, roughness: 0.15 }),
+        yellowGlow: new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xfacc15, emissiveIntensity: 0.85, metalness: 0.25, roughness: 0.2 }),
+        pcbGreen: new THREE.MeshStandardMaterial({ color: 0x047857, metalness: 0.45, roughness: 0.35 }),
+        goldPin: new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.18 }),
+        servoBlue: new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.26 }),
+        rubberTire: new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.15, roughness: 0.78 }),
+        glassVisor: new THREE.MeshStandardMaterial({ color: 0x082f49, emissive: 0x0284c7, emissiveIntensity: 0.35, metalness: 0.9, roughness: 0.1 })
+      };
+    }
+
+    function buildFullEducationalRobot() {
+      const mat = createRobotMaterialPalette();
+      const root = new THREE.Group();
+
+      // 1. CHASIS (Sculpted Torso Armor + Ribbed Side Vents + Wheelbase & Treads)
+      const chasis = new THREE.Group();
+      chasis.name = 'chasis';
+
+      const mainTorso = new THREE.Mesh(new THREE.BoxGeometry(1.42, 1.48, 0.86), mat.chassisLight);
+      mainTorso.userData.partKey = 'chasis';
+
+      // Beveled Chest Armor Collar & Waist Belt
+      const shoulderArmor = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.26, 0.94), mat.chassisSilver);
+      shoulderArmor.position.y = 0.65;
+      shoulderArmor.userData.partKey = 'chasis';
+
+      const waistBelt = new THREE.Mesh(new THREE.BoxGeometry(1.32, 0.22, 0.82), mat.chassisDark);
+      waistBelt.position.y = -0.78;
+      waistBelt.userData.partKey = 'chasis';
+
+      const backBackpack = new THREE.Mesh(new THREE.BoxGeometry(1.18, 1.24, 0.28), mat.chassisDark);
+      backBackpack.position.z = -0.46;
+      backBackpack.userData.partKey = 'chasis';
+
+      // Neon Side Strips
+      [-0.73, 0.73].forEach(xSide => {
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.15, 0.14), mat.cyanGlow);
+        strip.position.set(xSide, 0.05, 0.22);
+        strip.userData.partKey = 'chasis';
+        chasis.add(strip);
+      });
+
+      // Lower Drive Chassis & Detailed Wheels with Metallic Rims
+      const basePlat = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.22, 1.38), mat.chassisDark);
+      basePlat.position.y = -0.96;
+      basePlat.userData.partKey = 'chasis';
+
+      const axleFront = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.05, 16), mat.chassisSilver);
+      axleFront.rotation.z = Math.PI / 2;
+      axleFront.position.set(0, -1.04, 0.44);
+      axleFront.userData.partKey = 'chasis';
+
+      const axleRear = axleFront.clone();
+      axleRear.position.z = -0.44;
+      axleRear.userData.partKey = 'chasis';
+
+      const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.24, 28);
+      wheelGeo.rotateZ(Math.PI / 2);
+      const rimGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.26, 20);
+      rimGeo.rotateZ(Math.PI / 2);
+      const hubGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.28, 16);
+      hubGeo.rotateZ(Math.PI / 2);
+
+      [[-0.96, -1.04, 0.44], [0.96, -1.04, 0.44], [-0.96, -1.04, -0.44], [0.96, -1.04, -0.44]].forEach(pos => {
+        const tire = new THREE.Mesh(wheelGeo, mat.rubberTire);
+        tire.position.set(...pos);
+        tire.userData.partKey = 'chasis';
+
+        const rim = new THREE.Mesh(rimGeo, mat.chassisSilver);
+        rim.position.set(...pos);
+        rim.userData.partKey = 'chasis';
+
+        const hub = new THREE.Mesh(hubGeo, mat.cyanGlow);
+        hub.position.set(...pos);
+        hub.userData.partKey = 'chasis';
+
+        chasis.add(tire, rim, hub);
+      });
+
+      chasis.add(mainTorso, shoulderArmor, waistBelt, backBackpack, basePlat, axleFront, axleRear);
+      root.add(chasis);
+
+      // 2. CONTROLADOR (Detailed Upper Chest Motherboard + Gold Pins + Glowing CPU)
+      const controlador = new THREE.Group();
+      controlador.name = 'controlador';
+      controlador.position.set(0, 0.34, 0.34);
+
+      const board = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.54, 0.12), mat.pcbGreen);
+      board.userData.partKey = 'controlador';
+
+      const cpuSocket = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.14), mat.chassisDark);
+      cpuSocket.userData.partKey = 'controlador';
+
+      const cpuChip = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.17), mat.cyanGlow);
+      cpuChip.userData.partKey = 'controlador';
+
+      controlador.add(board, cpuSocket, cpuChip);
+
+      for (let i = -2; i <= 2; i++) {
+        const pin = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.48, 0.15), mat.goldPin);
+        pin.position.x = i * 0.08;
+        pin.userData.partKey = 'controlador';
+        controlador.add(pin);
+      }
+      root.add(controlador);
+
+      // 3. FUENTE DE ENERGÍA (Segmented Lithium Power Core with Glowing Cells)
+      const energia = new THREE.Group();
+      energia.name = 'energia';
+      energia.position.set(0, -0.25, 0.32);
+
+      const batHousing = new THREE.Mesh(new THREE.BoxGeometry(0.96, 0.42, 0.18), mat.chassisDark);
+      batHousing.userData.partKey = 'energia';
+      energia.add(batHousing);
+
+      [-0.3, -0.1, 0.1, 0.3].forEach(xCell => {
+        const cell = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.3, 0.21), mat.yellowGlow);
+        cell.position.x = xCell;
+        cell.userData.partKey = 'energia';
+        energia.add(cell);
+      });
+      root.add(energia);
+
+      // 4. SENSORES (Rounded Visor Head + Twin Ultrasonic Lenses + Ear Transceivers + Dual Antenna)
+      const sensores = new THREE.Group();
+      sensores.name = 'sensores';
+      sensores.position.set(0, 1.38, 0);
+
+      const neckCollar = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.22, 24), mat.chassisDark);
+      neckCollar.position.y = -0.46;
+      neckCollar.userData.partKey = 'sensores';
+
+      const headBox = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.76, 0.86), mat.chassisLight);
+      headBox.userData.partKey = 'sensores';
+
+      const headCrown = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.14, 0.76), mat.chassisSilver);
+      headCrown.position.y = 0.42;
+      headCrown.userData.partKey = 'sensores';
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.38, 0.14), mat.glassVisor);
+      visor.position.z = 0.42;
+      visor.userData.partKey = 'sensores';
+
+      // Ear Acoustic Pods
+      [-0.64, 0.64].forEach(xEar => {
+        const earPod = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.14, 20), mat.servoBlue);
+        earPod.rotation.z = Math.PI / 2;
+        earPod.position.set(xEar, 0.02, 0);
+        earPod.userData.partKey = 'sensores';
+        sensores.add(earPod);
+      });
+
+      sensores.add(neckCollar, headBox, headCrown, visor);
+
+      [-0.25, 0.25].forEach((xPos, idx) => {
+        const bezel = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 24), mat.chassisSilver);
+        bezel.rotation.x = Math.PI / 2;
+        bezel.position.set(xPos, 0, 0.47);
+        bezel.userData.partKey = 'sensores';
+
+        const eyeRing = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.12, 24), mat.cyanGlow);
+        eyeRing.rotation.x = Math.PI / 2;
+        eyeRing.position.set(xPos, 0, 0.48);
+        eyeRing.name = 'robotEyePupil_' + idx;
+        eyeRing.userData.partKey = 'sensores';
+        sensores.add(bezel, eyeRing);
+      });
+
+      const antStick = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.04, 0.38, 14), mat.chassisSilver);
+      antStick.position.y = 0.62;
+      antStick.userData.partKey = 'sensores';
+      const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 20), mat.yellowGlow);
+      antTip.position.y = 0.84;
+      antTip.userData.partKey = 'sensores';
+      sensores.add(antStick, antTip);
+
+      const scanRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.28, 0.34, 32),
+        new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0 })
+      );
+      scanRing.name = 'robotHeadScanRing';
+      scanRing.position.z = 0.65;
+      sensores.add(scanRing);
+      root.add(sensores);
+
+      // 5. ACTUADORES (Articulated Shoulder Servos, Upper Arms, Elbow Joints, Forearms & Twin-Finger Claws)
+      const actuadores = new THREE.Group();
+      actuadores.name = 'actuadores';
+
+      [-1, 1].forEach((side, idx) => {
+        const armGrp = new THREE.Group();
+        armGrp.name = idx === 0 ? 'leftArm' : 'rightArm';
+        armGrp.position.set(side * 0.96, 0.46, 0);
+
+        const shoulderServo = new THREE.Mesh(new THREE.SphereGeometry(0.24, 24, 24), mat.servoBlue);
+        shoulderServo.userData.partKey = 'actuadores';
+
+        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.12, 0.44, 20), mat.chassisSilver);
+        upperArm.position.y = -0.26;
+        upperArm.userData.partKey = 'actuadores';
+
+        const elbowJoint = new THREE.Mesh(new THREE.SphereGeometry(0.16, 20, 20), mat.chassisDark);
+        elbowJoint.position.y = -0.5;
+        elbowJoint.userData.partKey = 'actuadores';
+
+        const forearm = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.44, 0.26), mat.chassisLight);
+        forearm.position.y = -0.76;
+        forearm.userData.partKey = 'actuadores';
+
+        const wrist = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.1, 20), mat.servoBlue);
+        wrist.position.y = -1.01;
+        wrist.userData.partKey = 'actuadores';
+
+        const fingerL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.14), mat.yellowGlow);
+        fingerL.position.set(-0.09, -1.14, 0);
+        fingerL.rotation.z = 0.18;
+        fingerL.userData.partKey = 'actuadores';
+
+        const fingerR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.14), mat.yellowGlow);
+        fingerR.position.set(0.09, -1.14, 0);
+        fingerR.rotation.z = -0.18;
+        fingerR.userData.partKey = 'actuadores';
+
+        armGrp.add(shoulderServo, upperArm, elbowJoint, forearm, wrist, fingerL, fingerR);
+        actuadores.add(armGrp);
+      });
+
+      root.add(actuadores);
+
+      return root;
+    }
+
+    function buildIsolatedPartModel(partKey) {
+      const mat = createRobotMaterialPalette();
+      const group = new THREE.Group();
+
+      if (partKey === 'controlador') {
+        const pcb = new THREE.Mesh(new THREE.BoxGeometry(2.45, 0.14, 1.75), mat.pcbGreen);
+        const socket = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.18, 0.95), mat.chassisDark);
+        socket.position.y = 0.1;
+        const core = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.24, 0.76), mat.cyanGlow);
+        core.position.y = 0.15;
+        core.name = 'ctrlCore';
+        group.add(pcb, socket, core);
+
+        for (let p = -4; p <= 4; p++) {
+          const pinX = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 1.08), mat.goldPin);
+          pinX.position.set(p * 0.09, 0.12, 0);
+          const pinZ = new THREE.Mesh(new THREE.BoxGeometry(1.08, 0.18, 0.04), mat.goldPin);
+          pinZ.position.set(0, 0.12, p * 0.09);
+          group.add(pinX, pinZ);
+        }
+
+        for (let i = 0; i < 4; i++) {
+          const led = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), mat.yellowGlow);
+          led.position.set(-0.75 + i * 0.5, 0.15, 0.68);
+          led.name = 'ctrlLed_' + i;
+          group.add(led);
+        }
+      } else if (partKey === 'sensores') {
+        const moduleBox = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.86, 1.88), mat.servoBlue);
+        const crystal = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.42, 20), mat.chassisSilver);
+        crystal.rotation.z = Math.PI / 2;
+        crystal.position.set(0.28, 0.34, 0);
+        group.add(moduleBox, crystal);
+
+        [-0.48, 0.48].forEach(zPos => {
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.34, 28), mat.chassisSilver);
+          cyl.rotation.z = Math.PI / 2;
+          cyl.position.set(0.34, -0.04, zPos);
+          const meshGrid = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.36, 28), mat.chassisDark);
+          meshGrid.rotation.z = Math.PI / 2;
+          meshGrid.position.set(0.35, -0.04, zPos);
+          const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.38, 28), mat.cyanGlow);
+          lens.rotation.z = Math.PI / 2;
+          lens.position.set(0.36, -0.04, zPos);
+          group.add(cyl, meshGrid, lens);
+        });
+        for (let w = 0; w < 3; w++) {
+          const ring = new THREE.Mesh(
+            new THREE.RingGeometry(0.32, 0.4, 32),
+            new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
+          );
+          ring.rotation.y = Math.PI / 2;
+          ring.position.set(0.6 + w * 0.4, -0.04, 0);
+          ring.name = 'isoWave_' + w;
+          group.add(ring);
+        }
+      } else if (partKey === 'actuadores') {
+        const housing = new THREE.Mesh(new THREE.BoxGeometry(1.18, 1.18, 1.18), mat.servoBlue);
+        housing.position.x = -0.58;
+        const flange = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.42, 1.42), mat.chassisDark);
+        flange.position.x = -0.05;
+
+        const rotor = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.72, 24), mat.goldPin);
+        rotor.rotation.z = Math.PI / 2;
+        rotor.position.x = 0.28;
+        rotor.name = 'motorRotorCoils';
+
+        const gear1 = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.18, 20), mat.chassisSilver);
+        gear1.rotation.z = Math.PI / 2;
+        gear1.position.set(0.76, 0.2, 0);
+        gear1.name = 'isoGear1';
+
+        const gear2 = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.18, 16), mat.cyanGlow);
+        gear2.rotation.z = Math.PI / 2;
+        gear2.position.set(0.76, -0.44, 0);
+        gear2.name = 'isoGear2';
+
+        const prop = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.68, 0.22), mat.yellowGlow);
+        prop.position.set(1.06, 0.2, 0);
+        prop.name = 'isoPropeller';
+
+        const pulse = new THREE.Mesh(
+          new THREE.RingGeometry(0.55, 0.65, 32),
+          new THREE.MeshBasicMaterial({ color: 0xfde047, side: THREE.DoubleSide, transparent: true, opacity: 0 })
+        );
+        pulse.rotation.y = Math.PI / 2;
+        pulse.position.set(1.08, 0.2, 0);
+        pulse.name = 'motorEnergyPulse';
+
+        group.add(housing, flange, rotor, gear1, gear2, prop, pulse);
+      } else if (partKey === 'energia') {
+        const pack = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.08, 1.18), mat.chassisDark);
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.48, 0.58), mat.goldPin);
+        cap.position.x = 1.08;
+        group.add(pack, cap);
+
+        for (let b = 0; b < 4; b++) {
+          const bar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.68, 1.24), mat.yellowGlow);
+          bar.position.set(-0.62 + b * 0.42, 0, 0);
+          bar.name = 'batteryCell_' + b;
+          group.add(bar);
+        }
+      } else {
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.32, 1.44), mat.chassisLight);
+        const trim = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 1.5), mat.cyanGlow);
+        const cage = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.96, 1.06), mat.chassisDark);
+        cage.position.y = 0.56;
+        group.add(frame, trim, cage);
+
+        const wGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.24, 24);
+        wGeo.rotateZ(Math.PI / 2);
+        const rimGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.26, 20);
+        rimGeo.rotateZ(Math.PI / 2);
+
+        [[-1.14, -0.2, 0.48], [1.14, -0.2, 0.48], [-1.14, -0.2, -0.48], [1.14, -0.2, -0.48]].forEach((pos, idx) => {
+          const wh = new THREE.Mesh(wGeo, mat.rubberTire);
+          wh.position.set(...pos);
+          wh.name = 'isoWheel_' + idx;
+          const rim = new THREE.Mesh(rimGeo, mat.chassisSilver);
+          rim.position.set(...pos);
+          group.add(wh, rim);
+        });
+      }
+
+      return group;
+    }
+
+    /* ============================================================================
+       4. CONTENIDO & EJEMPLO (ENTRADA -> PROCESAMIENTO -> SALIDA)
+    ============================================================================ */
+    const ROBOT_PARTS = [
+      {
+        key: 'controlador',
+        badge: 'PARTE 1 DE 5',
+        title: 'El Controlador (Cerebro)',
+        analogy: 'Analogía humana: Es como nuestro cerebro.',
+        concept: 'Es una tarjeta electrónica o microprocesador que contiene el programa del robot. Recibe señales de los sensores y toma decisiones al instante.',
+        functions: [
+          'Procesar información recibida del entorno.',
+          'Ejecutar las instrucciones programadas.',
+          'Enviar órdenes precisas a los actuadores.'
+        ],
+        tone: 'click',
+        demoMsg: 'Procesando datos en el microprocesador central...'
+      },
+      {
+        key: 'sensores',
+        badge: 'PARTE 2 DE 5',
+        title: 'Los Sensores (Sentidos)',
+        analogy: 'Analogía humana: Son como nuestros ojos, oídos y tacto.',
+        concept: 'Son dispositivos electrónicos que permiten al robot percibir lo que ocurre a su alrededor (luz, distancia, sonido, temperatura o contacto).',
+        functions: [
+          'Detectar obstáculos mediante ondas ultrasónicas.',
+          'Medir niveles de luz, color o sonido.',
+          'Convertir estímulos físicos en señales eléctricas.'
+        ],
+        tone: 'sonar',
+        demoMsg: 'Emitiendo ondas ultrasónicas para detectar obstáculos...'
+      },
+      {
+        key: 'actuadores',
+        badge: 'PARTE 3 DE 5',
+        title: 'Los Actuadores (Músculos)',
+        analogy: 'Analogía humana: Son como nuestros brazos, piernas y manos.',
+        concept: 'Son motores, servomotores, ruedas o pinzas que transforman la energía eléctrica en movimiento físico o acciones sobre el entorno.',
+        functions: [
+          'Desplazar el robot mediante ruedas u orugas.',
+          'Mover brazos articulados y sujetar objetos.',
+          'Ejecutar las acciones ordenadas por el controlador.'
+        ],
+        tone: 'servo',
+        demoMsg: 'Activando servomotores y articulaciones mecánicas...'
+      },
+      {
+        key: 'energia',
+        badge: 'PARTE 4 DE 5',
+        title: 'Fuente de Energía (Corazón)',
+        analogy: 'Analogía humana: Es como los alimentos y el corazón que nos dan fuerza.',
+        concept: 'Es el sistema de baterías recargables o paneles solares que suministra electricidad a todos los circuitos y motores del robot.',
+        functions: [
+          'Almacenar energía eléctrica de forma segura.',
+          'Alimentar al controlador, sensores y motores.',
+          'Permitir que el robot trabaje de manera autónoma.'
+        ],
+        tone: 'charge',
+        demoMsg: 'Transfiriendo corriente eléctrica a todos los sistemas...'
+      },
+      {
+        key: 'chasis',
+        badge: 'PARTE 5 DE 5',
+        title: 'Estructura / Chasis (Esqueleto)',
+        analogy: 'Analogía humana: Es como nuestro esqueleto y piel.',
+        concept: 'Es el armazón externo e interno fabricado en metal o plástico resistente que sostiene y protege los componentes delicados.',
+        functions: [
+          'Dar forma, equilibrio y resistencia al robot.',
+          'Proteger los circuitos internos de golpes o polvo.',
+          'Soportar el peso de motores, sensores y baterías.'
+        ],
+        tone: 'click',
+        demoMsg: 'Verificando resistencia estructural y tracción del chasis...'
+      }
+    ];
+
+    let currentPartIdx = 0;
+    let content3DMode = 'isolated';
+    let inEjemploTab = false;
+    let remedialReviewActive = false;
+    let remedialReviewedSet = new Set();
+
+    function ensureContenidoSceneInitialized() {
+      if (!scenes.contenido) {
+        scenes.contenido = setupThreeViewport('canvas-contenido-container', { cameraZ: 4.8 });
+      }
+      resizeThreeViewport(scenes.contenido);
+    }
+
+    function updateRemedialProgressUI() {
+      const pill = document.getElementById('remedial-progress-pill');
+      if (!pill) return;
+      if (remedialReviewActive) {
+        pill.classList.remove('hidden');
+        pill.textContent = `Repaso obligatorio: ${remedialReviewedSet.size} / 5 piezas`;
+        if (remedialReviewedSet.size >= 5) {
+          remedialReviewActive = false;
+          evalLocked = false;
+          pill.textContent = '✓ Repaso completado • 2.º intento habilitado';
+        }
+      } else {
+        pill.classList.add('hidden');
+      }
+    }
+
+    function selectPart(idx) {
+      playTone('click');
+      stopPartSpeech();
+      inEjemploTab = false;
+      currentPartIdx = idx;
+
+      if (remedialReviewActive) {
+        remedialReviewedSet.add(idx);
+        updateRemedialProgressUI();
+      }
+
+      document.getElementById('contenido-part-card').classList.remove('hidden');
+      document.getElementById('contenido-ejemplo-card').classList.add('hidden');
+
+      for (let i = 0; i < 6; i++) {
+        const tab = document.getElementById('tab-part-' + i);
+        if (tab) tab.classList.toggle('tab-active', i === idx);
+      }
+
+      const part = ROBOT_PARTS[idx];
+      document.getElementById('part-badge-num').textContent = part.badge;
+      document.getElementById('part-title').textContent = part.title;
+      document.getElementById('part-analogy').textContent = part.analogy;
+      document.getElementById('part-concept').textContent = part.concept;
+      document.getElementById('demo-status-text').textContent = 'Pulsa el botón para observar esta pieza en funcionamiento';
+
+      const listEl = document.getElementById('part-functions-list');
+      listEl.innerHTML = part.functions.map(f => `<li>${f}</li>`).join('');
+
+      document.getElementById('btn-prev-part').style.visibility = idx === 0 ? 'hidden' : 'visible';
+      document.getElementById('btn-next-part').textContent = idx === 4 ? 'Ejemplo →' : 'Siguiente →';
+
+      rebuildContenido3DModel();
+    }
+
+    function openContenidoEjemplo() {
+      playTone('click');
+      stopPartSpeech();
+      inEjemploTab = true;
+
+      for (let i = 0; i < 6; i++) {
+        const tab = document.getElementById('tab-part-' + i);
+        if (tab) tab.classList.toggle('tab-active', i === 5);
+      }
+
+      document.getElementById('contenido-part-card').classList.add('hidden');
+      document.getElementById('contenido-ejemplo-card').classList.remove('hidden');
+
+      document.getElementById('btn-prev-part').style.visibility = 'visible';
+      document.getElementById('btn-next-part').textContent = 'Ir a Evaluación →';
+
+      content3DMode = 'robot';
+      document.getElementById('btn-mode-isolated').classList.remove('tab-active');
+      document.getElementById('btn-mode-robot').classList.add('tab-active');
+      rebuildContenido3DModel();
+      runChainScenario('obstaculo');
+    }
+
+    function prevPart() {
+      if (inEjemploTab) {
+        selectPart(4);
+      } else if (currentPartIdx > 0) {
+        selectPart(currentPartIdx - 1);
+      }
+    }
+
+    function nextPart() {
+      if (inEjemploTab) {
+        startEvaluation();
+      } else if (currentPartIdx < 4) {
+        selectPart(currentPartIdx + 1);
+      } else {
+        openContenidoEjemplo();
+      }
+    }
+
+    function setContent3DMode(mode) {
+      playTone('click');
+      content3DMode = mode;
+      document.getElementById('btn-mode-isolated').classList.toggle('tab-active', mode === 'isolated');
+      document.getElementById('btn-mode-robot').classList.toggle('tab-active', mode === 'robot');
+      rebuildContenido3DModel();
+    }
+
+    function rebuildContenido3DModel() {
+      ensureContenidoSceneInitialized();
+      const vp = scenes.contenido;
+      if (!vp) return;
+
+      if (vp.model) vp.scene.remove(vp.model);
+      vp.demoActive = false;
+
+      if (content3DMode === 'isolated' && !inEjemploTab) {
+        vp.model = buildIsolatedPartModel(ROBOT_PARTS[currentPartIdx].key);
+        vp.scene.add(vp.model);
+      } else {
+        vp.model = buildFullEducationalRobot();
+        vp.scene.add(vp.model);
+        highlightPartInRobot(vp.model, inEjemploTab ? null : ROBOT_PARTS[currentPartIdx].key);
+      }
+    }
+
+    function highlightPartInRobot(robotRoot, activeKey) {
+      if (!robotRoot) return;
+      robotRoot.traverse(child => {
+        if (child.isMesh && child.userData.partKey) {
+          if (!child.userData.origMat) child.userData.origMat = child.material;
+          const m = child.userData.origMat.clone();
+          if (activeKey && child.userData.partKey === activeKey) {
+            if (m.emissive) {
+              m.emissive.setHex(0xfde047);
+              m.emissiveIntensity = 0.65;
+            }
+          } else if (activeKey) {
+            m.transparent = true;
+            m.opacity = 0.32;
+          }
+          child.material = m;
+        }
+      });
+    }
+
+    function triggerPartDemo() {
+      const part = ROBOT_PARTS[currentPartIdx];
+      playTone(part.tone || 'click');
+      if (scenes.contenido) {
+        scenes.contenido.demoActive = true;
+        scenes.contenido.demoTimer = 3.2;
+      }
+      document.getElementById('demo-status-text').textContent = part.demoMsg;
+    }
+
+    const CHAIN_SCENARIOS = {
+      obstaculo: {
+        s1: 'El sensor ultrasónico detecta una pared a 20 cm.',
+        s2: 'El microprocesador analiza la distancia y decide frenar y girar.',
+        s3: 'Los motores detienen las ruedas y giran el robot hacia un camino libre.'
+      },
+      oscuridad: {
+        s1: 'El sensor de luz detecta que el aula quedó a oscuras.',
+        s2: 'El controlador procesa la baja luminosidad y ordena encender luces.',
+        s3: 'Los actuadores luminosos (LED frontales) iluminan el camino.'
+      },
+      aplauso: {
+        s1: 'El sensor de sonido capta dos aplausos cercanos.',
+        s2: 'El controlador reconoce el patrón de sonido programado.',
+        s3: 'Los servomotores levantan los brazos del robot para saludar.'
+      }
+    };
+
+    let chainTimers = [];
+    function runChainScenario(key) {
+      playTone('sonar');
+      chainTimers.forEach(t => clearTimeout(t));
+      chainTimers = [];
+
+      const data = CHAIN_SCENARIOS[key];
+      document.getElementById('chain-text-1').textContent = data.s1;
+      document.getElementById('chain-text-2').textContent = data.s2;
+      document.getElementById('chain-text-3').textContent = data.s3;
+
+      ['obstaculo', 'oscuridad', 'aplauso'].forEach(k => {
+        const b = document.getElementById('chain-btn-' + k);
+        if (b) b.classList.toggle('tab-active', k === key);
+      });
+
+      const steps = ['chain-step-1', 'chain-step-2', 'chain-step-3'];
+      const partOrder = ['sensores', 'controlador', 'actuadores'];
+
+      steps.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        el.classList.remove('border-yellow-300', 'bg-cyan-950/60');
+        el.classList.add('border-slate-700');
+
+        const timer = setTimeout(() => {
+          playTone(idx === 0 ? 'sonar' : idx === 1 ? 'click' : 'servo');
+          steps.forEach(s => {
+            document.getElementById(s).classList.remove('border-yellow-300', 'bg-cyan-950/60');
+            document.getElementById(s).classList.add('border-slate-700');
+          });
+          el.classList.remove('border-slate-700');
+          el.classList.add('border-yellow-300', 'bg-cyan-950/60');
+          if (scenes.contenido && scenes.contenido.model) {
+            highlightPartInRobot(scenes.contenido.model, partOrder[idx]);
+          }
+        }, idx * 1300);
+        chainTimers.push(timer);
+      });
+    }
+
+    function speakTextSpanish(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-ES';
+      utter.rate = 0.98;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function stopPartSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function speakCurrentPartExplanation() {
+      const part = ROBOT_PARTS[currentPartIdx];
+      speakTextSpanish(`${part.title}. ${part.analogy}. ${part.concept}. Funciones principales: ${part.functions.join('. ')}`);
+    }
+
+    function speakChainExample() {
+      const t1 = document.getElementById('chain-text-1').textContent;
+      const t2 = document.getElementById('chain-text-2').textContent;
+      const t3 = document.getElementById('chain-text-3').textContent;
+      speakTextSpanish(`Ejemplo práctico. Uno, Entrada: ${t1}. Dos, Procesamiento: ${t2}. Tres, Salida: ${t3}`);
+    }
+
+    /* ============================================================================
+       5. VIDEO CAPSULE (3D ANIMATED & NARRATED)
+    ============================================================================ */
+    const VIDEO_TOTAL_DURATION = 48;
+    const VIDEO_SCENES = [
+      { badge: 'ESCENA 1 / 6 • INTRODUCCIÓN', partKey: null, exploded: false, text: '¡Hola! Hoy descubriremos cómo funciona un robot por dentro y por fuera.' },
+      { badge: 'ESCENA 2 / 6 • SENSORES', partKey: 'sensores', exploded: false, text: 'Los sensores son sus sentidos: captan luz, distancia y sonidos del entorno.' },
+      { badge: 'ESCENA 3 / 6 • CONTROLADOR', partKey: 'controlador', exploded: true, text: 'El controlador es su cerebro electrónico: procesa los datos y toma decisiones.' },
+      { badge: 'ESCENA 4 / 6 • ACTUADORES', partKey: 'actuadores', exploded: false, text: 'Los actuadores son sus músculos y motores: mueven ruedas, brazos y pinzas.' },
+      { badge: 'ESCENA 5 / 6 • FUENTE DE ENERGÍA', partKey: 'energia', exploded: true, text: 'La fuente de energía o batería brinda electricidad para que todo funcione.' },
+      { badge: 'ESCENA 6 / 6 • CHASIS', partKey: 'chasis', exploded: false, text: 'El chasis es su esqueleto protector que sostiene y une todas las piezas.' }
+    ];
+
+    let videoPlaying = false;
+    let videoElapsed = 0;
+    let videoLastSceneIndex = -1;
+    let videoVoiceEnabled = true;
+    let videoExplodedTarget = false;
+
+    function ensureVideoSceneInitialized() {
+      if (!scenes.video) {
+        scenes.video = setupThreeViewport('canvas-video-container', { cameraZ: 5.2 });
+        if (scenes.video) {
+          scenes.video.model = buildFullEducationalRobot();
+          scenes.video.scene.add(scenes.video.model);
+        }
+      }
+      resizeThreeViewport(scenes.video);
+    }
+
+    function openVideoLesson() {
+      navigateTo('video');
+      requestAnimationFrame(() => {
+        ensureVideoSceneInitialized();
+        restartVideoLesson();
+      });
+    }
+
+    function exitVideoLesson() {
+      videoPlaying = false;
+      stopPartSpeech();
+      navigateTo('menu');
+    }
+
+    function applyVideoScene(idx, shouldSpeak) {
+      const sc = VIDEO_SCENES[idx];
+      if (!sc) return;
+      document.getElementById('video-scene-badge').textContent = sc.badge;
+      document.getElementById('video-subtitle-text').textContent = sc.text;
+      videoExplodedTarget = sc.exploded;
+
+      if (scenes.video && scenes.video.model) {
+        highlightPartInRobot(scenes.video.model, sc.partKey);
+      }
+      if (shouldSpeak && videoVoiceEnabled) {
+        speakTextSpanish(sc.text);
+      }
+    }
+
+    function toggleVideoPlayPause() {
+      playTone('click');
+      if (videoElapsed >= VIDEO_TOTAL_DURATION) {
+        restartVideoLesson();
+        return;
+      }
+      videoPlaying = !videoPlaying;
+      document.getElementById('btn-video-play-label').textContent = videoPlaying ? '⏸ Pausar' : '▶ Reproducir';
+      if (!videoPlaying) stopPartSpeech();
+    }
+
+    function restartVideoLesson() {
+      videoElapsed = 0;
+      videoLastSceneIndex = 0;
+      videoPlaying = true;
+      document.getElementById('btn-video-play-label').textContent = '⏸ Pausar';
+      document.getElementById('video-progress-fill').style.width = '0%';
+      document.getElementById('video-time-current').textContent = '0:00';
+      applyVideoScene(0, true);
+    }
+
+    function toggleVideoVoice() {
+      videoVoiceEnabled = !videoVoiceEnabled;
+      document.getElementById('btn-video-voice-label').textContent = videoVoiceEnabled ? '🔊 Voz: Activada' : '🔇 Voz: Silenciada';
+      if (!videoVoiceEnabled) stopPartSpeech();
+    }
+
+    function seekVideoLesson(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      videoElapsed = ratio * VIDEO_TOTAL_DURATION;
+      const idx = Math.min(VIDEO_SCENES.length - 1, Math.floor(videoElapsed / 8));
+      videoLastSceneIndex = idx;
+      applyVideoScene(idx, videoPlaying);
+    }
+
+    /* ============================================================================
+       6. EVALUACIÓN SUMATIVA (5 PREGUNTAS + RETROALIMENTACIÓN GENERAL)
+    ============================================================================ */
+    const EVAL_QUESTIONS = [
+      {
+        q: '1. ¿Qué componente actúa como el "cerebro" del robot y procesa las instrucciones?',
+        options: ['El chasis metálico', 'El controlador (microprocesador)', 'Las ruedas de tracción'],
+        correct: 1,
+        feedback: '¡Correcto! El controlador analiza la información de los sensores y envía órdenes a los actuadores.'
+      },
+      {
+        q: '2. Si un robot detecta que hay una pared al frente antes de chocar, ¿qué parte utilizó?',
+        options: ['Los sensores', 'La fuente de energía', 'El chasis'],
+        correct: 0,
+        feedback: '¡Exacto! Los sensores permiten al robot percibir obstáculos, luz o sonidos de su entorno.'
+      },
+      {
+        q: '3. ¿Cuál es la función principal de los actuadores en un robot?',
+        options: ['Almacenar electricidad', 'Transformar energía en movimiento físico', 'Proteger los cables internos'],
+        correct: 1,
+        feedback: '¡Muy bien! Motores, servomotores, brazos y ruedas son actuadores que producen movimiento.'
+      },
+      {
+        q: '4. ¿Qué ocurre si se agota por completo la fuente de energía (batería) del robot?',
+        options: ['El robot sigue funcionando más rápido', 'Ningún componente electrónico ni motor recibe electricidad', 'Los sensores se convierten en motores'],
+        correct: 1,
+        feedback: '¡Correcto! Sin fuente de energía, ni el controlador ni los sensores o actuadores pueden operar.'
+      },
+      {
+        q: '5. ¿Qué parte funciona como el "esqueleto" que sostiene y protege todas las piezas internas?',
+        options: ['El chasis o estructura', 'El sensor ultrasónico', 'El cable USB'],
+        correct: 0,
+        feedback: '¡Excelente! El chasis brinda soporte mecánico y protección a todo el sistema robótico.'
+      }
+    ];
+
+    let evalCurrentQ = 0;
+    let evalScore = 0;
+    let evalAnsweredCurrent = false;
+    let evalAttemptsUsed = 0;
+    let evalLocked = false;
+    let evalPassedPermanently = false;
+
+    function startEvaluation() {
+      playTone('click');
+      navigateTo('evaluacion');
+
+      if (evalPassedPermanently || (evalLocked && evalAttemptsUsed >= 1)) {
+        showEvaluationSummary();
+        return;
+      }
+
+      evalCurrentQ = 0;
+      evalScore = 0;
+      document.getElementById('eval-question-card').classList.remove('hidden');
+      document.getElementById('eval-summary-card').classList.add('hidden');
+      renderEvaluationQuestion();
+    }
+
+    function renderEvaluationQuestion() {
+      evalAnsweredCurrent = false;
+      const item = EVAL_QUESTIONS[evalCurrentQ];
+
+      document.getElementById('eval-q-badge').textContent = `PREGUNTA ${evalCurrentQ + 1} DE ${EVAL_QUESTIONS.length}`;
+      document.getElementById('eval-score-live').textContent = `Aciertos: ${evalScore}`;
+      document.getElementById('eval-q-text').textContent = item.q;
+      document.getElementById('eval-feedback-box').classList.add('hidden');
+      document.getElementById('btn-eval-next').classList.add('hidden');
+
+      const optsContainer = document.getElementById('eval-options-container');
+      optsContainer.innerHTML = item.options.map((opt, idx) => `
+        <button onclick="submitAnswer(${idx})" id="eval-opt-${idx}" class="w-full p-4 rounded-xl bg-[#081220] border border-cyan-500/40 hover:border-yellow-300 text-left text-sm sm:text-base text-slate-100 font-medium transition cursor-pointer flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-cyan-950 border border-cyan-400/70 flex items-center justify-center font-display font-bold text-xs text-cyan-300 shrink-0">
+            ${['A', 'B', 'C'][idx]}
+          </span>
+          <span>${opt}</span>
+        </button>
+      `).join('');
+    }
+
+    function submitAnswer(selectedIdx) {
+      if (evalAnsweredCurrent) return;
+      evalAnsweredCurrent = true;
+
+      const item = EVAL_QUESTIONS[evalCurrentQ];
+      const isCorrect = selectedIdx === item.correct;
+      if (isCorrect) {
+        evalScore++;
+        playTone('success');
+      } else {
+        playTone('error');
+      }
+
+      document.getElementById('eval-score-live').textContent = `Aciertos: ${evalScore}`;
+
+      item.options.forEach((_, idx) => {
+        const btn = document.getElementById('eval-opt-' + idx);
+        btn.disabled = true;
+        if (isCorrect && idx === item.correct) {
+          btn.classList.add('border-emerald-400', 'bg-emerald-950/60', 'text-emerald-200');
+        } else if (!isCorrect && idx === selectedIdx) {
+          btn.classList.add('border-red-400', 'bg-red-950/60', 'text-red-200');
+        }
+      });
+
+      const fbBox = document.getElementById('eval-feedback-box');
+      fbBox.classList.remove('hidden');
+      fbBox.className = `p-4 rounded-xl border text-sm leading-relaxed ${
+        isCorrect
+          ? 'bg-emerald-950/50 border-emerald-400/70 text-emerald-200'
+          : 'bg-red-950/50 border-red-400/70 text-red-200'
+      }`;
+      fbBox.textContent = isCorrect
+        ? item.feedback
+        : 'Respuesta incorrecta. Continúa con la siguiente pregunta y al finalizar recibirás tu retroalimentación.';
+
+      const nextBtn = document.getElementById('btn-eval-next');
+      nextBtn.classList.remove('hidden');
+      nextBtn.textContent = evalCurrentQ === EVAL_QUESTIONS.length - 1 ? 'Ver Resultado Final →' : 'Siguiente →';
+    }
+
+    function nextEvaluationStep() {
+      playTone('click');
+      if (evalCurrentQ < EVAL_QUESTIONS.length - 1) {
+        evalCurrentQ++;
+        renderEvaluationQuestion();
+      } else {
+        evalAttemptsUsed++;
+        if (evalScore >= 3) {
+          evalPassedPermanently = true;
+          evalLocked = true;
+        } else {
+          evalLocked = true;
+          if (evalAttemptsUsed === 1) {
+            remedialReviewActive = true;
+            remedialReviewedSet.clear();
+          }
+        }
+        showEvaluationSummary();
+      }
+    }
+
+    function showEvaluationSummary() {
+      document.getElementById('eval-question-card').classList.add('hidden');
+      document.getElementById('eval-summary-card').classList.remove('hidden');
+
+      const banner = document.getElementById('eval-last-score-banner');
+      banner.classList.remove('hidden');
+      banner.textContent = `Última Evaluación: ${evalScore} / 5 aciertos`;
+
+      const iconEl = document.getElementById('eval-summary-icon');
+      const titleEl = document.getElementById('eval-summary-title');
+      const scoreEl = document.getElementById('eval-summary-score');
+      const fbEl = document.getElementById('eval-summary-feedback-box');
+      const actionsEl = document.getElementById('eval-summary-actions');
+
+      scoreEl.textContent = `Puntaje obtenido: ${evalScore} / 5 aciertos`;
+
+      if (evalScore >= 3) {
+        iconEl.textContent = '🏆';
+        titleEl.textContent = '¡Excelente Desempeño!';
+        titleEl.className = 'font-display font-black text-2xl sm:text-3xl text-yellow-300 pt-2';
+        fbEl.textContent = '¡Felicitaciones! Demostraste una comprensión muy sólida sobre las partes del robot y sus funciones. Has aprobado satisfactoriamente la evaluación sumativa.';
+        actionsEl.innerHTML = `
+          <button onclick="navigateTo('menu')" class="btn-cyber-yellow px-6 py-3 rounded-xl font-display font-bold text-sm cursor-pointer">
+            Volver al Menú Principal
+          </button>
+        `;
+      } else if (evalAttemptsUsed === 1 && remedialReviewActive) {
+        iconEl.textContent = '📘';
+        titleEl.textContent = 'Necesitas Reforzar el Contenido';
+        titleEl.className = 'font-display font-black text-2xl sm:text-3xl text-cyan-300 pt-2';
+        fbEl.textContent = 'Obtuviste menos de 3 aciertos. Regresa a la sección Contenido y repasa las 5 partes del robot; al completar el repaso de las 5 piezas se habilitará una segunda oportunidad para rendir la prueba.';
+        actionsEl.innerHTML = `
+          <button onclick="goToRemedialReview()" class="btn-cyber-yellow px-6 py-3 rounded-xl font-display font-bold text-sm cursor-pointer">
+            📘 Volver al Contenido para Repasar
+          </button>
+        `;
+      } else {
+        iconEl.textContent = '📊';
+        titleEl.textContent = 'Evaluación Finalizada';
+        titleEl.className = 'font-display font-black text-2xl sm:text-3xl text-cyan-300 pt-2';
+        fbEl.textContent = 'Has completado tus intentos disponibles en esta evaluación sumativa. Te invitamos a seguir practicando en el Taller de Reparación 3D.';
+        actionsEl.innerHTML = `
+          <button onclick="navigateTo('menu')" class="btn-cyber px-6 py-3 rounded-xl font-display font-bold text-sm cursor-pointer">
+            Volver al Menú Principal
+          </button>
+        `;
+      }
+    }
+
+    function goToRemedialReview() {
+      currentPartIdx = 0;
+      navigateTo('contenido');
+      updateRemedialProgressUI();
+    }
+
+    /* ============================================================================
+       7. ACTIVIDAD: TALLER DE REPARACIÓN ROBÓTICA 3D (4 ROBOTS DISTINTOS)
+    ============================================================================ */
+    const PART_LABELS_SHORT = [
+      { key: 'sensores', label: 'Sensores (Ojos / Cámaras / Sonar)' },
+      { key: 'controlador', label: 'Controlador (Cerebro Electrónico)' },
+      { key: 'actuadores', label: 'Actuadores (Motores / Brazos / Hélices)' },
+      { key: 'energia', label: 'Fuente de Energía (Batería / Panel)' },
+      { key: 'chasis', label: 'Chasis (Estructura / Ruedas / Orugas)' }
+    ];
+
+    const REPAIR_MISSIONS = [
+      {
+        id: 'rover',
+        shortName: '1. Rover 6×6',
+        fullName: 'Robot 1: Rover Explorador 6×6',
+        faultyPart: 'sensores',
+        symptom: 'El Rover tiene batería llena y sus 6 ruedas giran, pero choca contra las paredes porque su torreta superior no detecta obstáculos.',
+        repairSuccessMsg: '¡Excelente! Reparaste los Sensores ultrasónicos del Rover. Ahora escanea el terreno y esquiva obstáculos.',
+        wrongHints: {
+          controlador: 'Su placa central procesa bien las órdenes, pero no recibe datos del exterior.',
+          actuadores: 'Sus motores de tracción sí funcionan; el problema es que no "ve" el camino.',
+          energia: 'Su panel solar y batería tienen carga completa.',
+          chasis: 'Sus 6 ruedas y estructura están intactas.'
+        }
+      },
+      {
+        id: 'brazo',
+        shortName: '2. Brazo Taller',
+        fullName: 'Robot 2: Brazo Articulado de Taller',
+        faultyPart: 'actuadores',
+        symptom: 'La cámara superior detecta las piezas y el cerebro envía la orden de sujetarlas, pero las articulaciones y la pinza no se mueven.',
+        repairSuccessMsg: '¡Reparado! Sustituiste los Actuadores (servomotores y pinza). El brazo ya articula con precisión.',
+        wrongHints: {
+          sensores: 'Su cámara óptica sí detecta los objetos correctamente.',
+          controlador: 'La consola central sí envía la señal de movimiento.',
+          energia: 'El generador trasero suministra corriente estable.',
+          chasis: 'La base giratoria y el pedestal están firmes.'
+        }
+      },
+      {
+        id: 'dron',
+        shortName: '3. Dron Vigía',
+        fullName: 'Robot 3: Dron Vigía Aéreo',
+        faultyPart: 'energia',
+        symptom: 'El dron intenta encender sus 4 hélices pero se apaga al instante porque el módulo superior parpadea en rojo sin corriente.',
+        repairSuccessMsg: '¡Genial! Reemplazaste la Fuente de Energía (batería LiPo). ¡El dron ya tiene potencia para volar!',
+        wrongHints: {
+          actuadores: 'Las 4 hélices están libres, pero no reciben electricidad para girar.',
+          sensores: 'La cámara inferior está en buen estado.',
+          controlador: 'El controlador de vuelo espera voltaje para arrancar.',
+          chasis: 'Los brazos de fibra y protectores están intactos.'
+        }
+      },
+      {
+        id: 'asistente',
+        shortName: '4. Bot Asistente',
+        fullName: 'Robot 4: Bot Asistente con Orugas',
+        faultyPart: 'controlador',
+        symptom: 'Tiene la batería cargada, escucha los comandos de voz y sus motores están listos, pero no sabe qué decisión tomar.',
+        repairSuccessMsg: '¡Misión cumplida! Reparaste el Controlador central (cerebro). El Bot Asistente ya coordina todas sus tareas.',
+        wrongHints: {
+          sensores: 'Sus micrófonos y visor captan bien los comandos.',
+          energia: 'La mochila de batería está al 100 %.',
+          actuadores: 'Sus brazos laterales esperan órdenes del cerebro.',
+          chasis: 'Las orugas y rodillos están en perfecto estado.'
+        }
+      }
+    ];
+
+    let actCurrentMissionIdx = 0;
+    let actRepairedStatus = [false, false, false, false];
+    let actExplodedMode = false;
+    const raycaster = new THREE.Raycaster();
+    const pointerVec = new THREE.Vector2();
+
+    // Builds 4 completely distinct high-detail 3D robot architectures (different from Portada)
+    function buildDistinctRepairRobot(robotId) {
+      const mat = createRobotMaterialPalette();
+      const faultRed = new THREE.MeshStandardMaterial({
+        color: 0xef4444,
+        emissive: 0xdc2626,
+        emissiveIntensity: 0.9,
+        roughness: 0.25
+      });
+      const root = new THREE.Group();
+
+      if (robotId === 'rover') {
+        // ROBOT 1: High-Detail 6-Wheeled Mars/School Exploration Rover
+        const chasis = new THREE.Group();
+        chasis.name = 'chasis';
+        const hull = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.42, 1.65), mat.chassisLight);
+        hull.position.y = -0.35;
+        hull.userData.partKey = 'chasis';
+
+        const bellyPan = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.16, 1.35), mat.chassisDark);
+        bellyPan.position.y = -0.58;
+        bellyPan.userData.partKey = 'chasis';
+
+        const frameTrim = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.08, 1.72), mat.cyanGlow);
+        frameTrim.position.y = -0.35;
+        frameTrim.userData.partKey = 'chasis';
+        chasis.add(hull, bellyPan, frameTrim);
+
+        // 6 Rugged Rover Wheels with Suspension Arms & Metallic Hubs
+        const wGeo = new THREE.CylinderGeometry(0.37, 0.37, 0.28, 24);
+        wGeo.rotateX(Math.PI / 2);
+        const rimGeo = new THREE.CylinderGeometry(0.21, 0.21, 0.3, 18);
+        rimGeo.rotateX(Math.PI / 2);
+
+        [-0.96, 0, 0.96].forEach(xPos => {
+          [-0.98, 0.98].forEach(zPos => {
+            const strut = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.12), mat.chassisSilver);
+            strut.position.set(xPos, -0.52, zPos * 0.82);
+            strut.userData.partKey = 'chasis';
+
+            const w = new THREE.Mesh(wGeo, mat.rubberTire);
+            w.position.set(xPos, -0.68, zPos);
+            w.userData.partKey = 'chasis';
+
+            const r = new THREE.Mesh(rimGeo, mat.chassisSilver);
+            r.position.set(xPos, -0.68, zPos);
+            r.userData.partKey = 'chasis';
+
+            chasis.add(strut, w, r);
+          });
+        });
+        root.add(chasis);
+
+        // Energia: Rear Solar Wing + Gold-Trimmed Battery Pack
+        const energia = new THREE.Group();
+        energia.name = 'energia';
+        const solarPanel = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.08, 1.58), mat.servoBlue);
+        solarPanel.position.set(-0.76, 0.1, 0);
+        solarPanel.rotation.z = 0.22;
+        solarPanel.userData.partKey = 'energia';
+
+        const solarGrid = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.1, 1.46), mat.glassVisor);
+        solarGrid.position.set(-0.76, 0.11, 0);
+        solarGrid.rotation.z = 0.22;
+        solarGrid.userData.partKey = 'energia';
+
+        const batCell = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.24, 0.92), mat.yellowGlow);
+        batCell.position.set(-0.65, -0.1, 0);
+        batCell.userData.partKey = 'energia';
+        energia.add(solarPanel, solarGrid, batCell);
+        root.add(energia);
+
+        // Controlador: Internal Center CPU Box with Gold Pins
+        const controlador = new THREE.Group();
+        controlador.name = 'controlador';
+        const pcb = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.2, 0.96), mat.pcbGreen);
+        pcb.position.set(0.15, -0.05, 0);
+        pcb.userData.partKey = 'controlador';
+        const chip = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.24, 0.42), mat.cyanGlow);
+        chip.position.set(0.15, -0.02, 0);
+        chip.userData.partKey = 'controlador';
+        controlador.add(pcb, chip);
+        root.add(controlador);
+
+        // Actuadores: Front Sample Collector Arm & Claw
+        const actuadores = new THREE.Group();
+        actuadores.name = 'actuadores';
+        actuadores.position.set(1.15, -0.2, 0);
+        const armBoom = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.14, 0.16), mat.servoBlue);
+        armBoom.position.set(0.35, 0.22, 0);
+        armBoom.rotation.z = 0.45;
+        armBoom.userData.partKey = 'actuadores';
+        const scoop = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.26, 0.44), mat.yellowGlow);
+        scoop.position.set(0.76, 0.46, 0);
+        scoop.userData.partKey = 'actuadores';
+        actuadores.add(armBoom, scoop);
+        root.add(actuadores);
+
+        // Sensores: Tall Mast with Dual Ultrasonic Eyes (Faulty initially)
+        const sensores = new THREE.Group();
+        sensores.name = 'sensores';
+        const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 0.96, 18), mat.chassisSilver);
+        mast.position.set(0.65, 0.35, 0);
+        mast.userData.partKey = 'sensores';
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.38, 0.98), mat.chassisDark);
+        head.position.set(0.65, 0.92, 0);
+        head.userData.partKey = 'sensores';
+        [-0.25, 0.25].forEach(zEye => {
+          const bezel = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.14, 22), mat.chassisSilver);
+          bezel.rotation.z = Math.PI / 2;
+          bezel.position.set(0.86, 0.92, zEye);
+          bezel.userData.partKey = 'sensores';
+
+          const eye = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.18, 22), faultRed);
+          eye.rotation.z = Math.PI / 2;
+          eye.position.set(0.88, 0.92, zEye);
+          eye.name = 'faultIndicatorMesh';
+          eye.userData.partKey = 'sensores';
+          sensores.add(bezel, eye);
+        });
+        sensores.add(mast, head);
+        root.add(sensores);
+
+      } else if (robotId === 'brazo') {
+        // ROBOT 2: High-Detail Articulated Industrial Robotic Arm
+        const chasis = new THREE.Group();
+        chasis.name = 'chasis';
+        const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.38, 0.32, 32), mat.chassisDark);
+        pedestal.position.y = -0.95;
+        pedestal.userData.partKey = 'chasis';
+        const ringTrim = new THREE.Mesh(new THREE.CylinderGeometry(1.22, 1.22, 0.08, 32), mat.cyanGlow);
+        ringTrim.position.y = -0.82;
+        ringTrim.userData.partKey = 'chasis';
+        const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.76, 0.86, 0.45, 28), mat.chassisLight);
+        turret.position.y = -0.58;
+        turret.userData.partKey = 'chasis';
+        chasis.add(pedestal, ringTrim, turret);
+        root.add(chasis);
+
+        // Controlador: Base Control Console
+        const controlador = new THREE.Group();
+        controlador.name = 'controlador';
+        const ctrlBox = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.42, 0.36), mat.pcbGreen);
+        ctrlBox.position.set(0, -0.55, 0.78);
+        ctrlBox.userData.partKey = 'controlador';
+        const screen = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.24, 0.06), mat.cyanGlow);
+        screen.position.set(0, -0.52, 0.96);
+        screen.userData.partKey = 'controlador';
+        controlador.add(ctrlBox, screen);
+        root.add(controlador);
+
+        // Energia: Rear Power Generator Cylinder
+        const energia = new THREE.Group();
+        energia.name = 'energia';
+        const powerPack = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.65, 24), mat.yellowGlow);
+        powerPack.position.set(0, -0.52, -0.82);
+        powerPack.userData.partKey = 'energia';
+        energia.add(powerPack);
+        root.add(energia);
+
+        // Actuadores: Multi-joint Arm & Gripper Claw (Faulty initially)
+        const actuadores = new THREE.Group();
+        actuadores.name = 'actuadores';
+        actuadores.position.set(0, -0.3, 0);
+        const joint1 = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.54, 24), faultRed);
+        joint1.rotation.z = Math.PI / 2;
+        joint1.name = 'faultIndicatorMesh';
+        joint1.userData.partKey = 'actuadores';
+
+        const lowerSeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.15, 0.32), mat.servoBlue);
+        lowerSeg.position.set(0, 0.55, -0.15);
+        lowerSeg.rotation.x = -0.25;
+        lowerSeg.userData.partKey = 'actuadores';
+
+        const elbowJoint = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.4, 20), mat.chassisSilver);
+        elbowJoint.rotation.z = Math.PI / 2;
+        elbowJoint.position.set(0, 1.05, -0.28);
+        elbowJoint.userData.partKey = 'actuadores';
+
+        const upperSeg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 1.05, 0.26), mat.chassisLight);
+        upperSeg.position.set(0, 1.25, 0.32);
+        upperSeg.rotation.x = 0.75;
+        upperSeg.userData.partKey = 'actuadores';
+
+        const claw1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.38, 0.14), faultRed);
+        claw1.position.set(-0.14, 1.55, 0.85);
+        claw1.rotation.x = 0.8;
+        claw1.userData.partKey = 'actuadores';
+        const claw2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.38, 0.14), faultRed);
+        claw2.position.set(0.14, 1.55, 0.85);
+        claw2.rotation.x = 0.8;
+        claw2.userData.partKey = 'actuadores';
+
+        actuadores.add(joint1, lowerSeg, elbowJoint, upperSeg, claw1, claw2);
+        root.add(actuadores);
+
+        // Sensores: Optical Vision Camera mounted near wrist
+        const sensores = new THREE.Group();
+        sensores.name = 'sensores';
+        const camPod = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.34), mat.chassisDark);
+        camPod.position.set(0, 1.55, 0.45);
+        camPod.userData.partKey = 'sensores';
+        const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.14, 20), mat.cyanGlow);
+        camLens.rotation.x = Math.PI / 2;
+        camLens.position.set(0, 1.55, 0.62);
+        camLens.userData.partKey = 'sensores';
+        sensores.add(camPod, camLens);
+        root.add(sensores);
+
+      } else if (robotId === 'dron') {
+        // ROBOT 3: High-Detail Quadcopter Aerial Drone with Rotor Guards
+        const chasis = new THREE.Group();
+        chasis.name = 'chasis';
+        const centerHub = new THREE.Mesh(new THREE.CylinderGeometry(0.74, 0.84, 0.34, 28), mat.chassisDark);
+        centerHub.userData.partKey = 'chasis';
+        const hullRing = new THREE.Mesh(new THREE.CylinderGeometry(0.86, 0.86, 0.08, 28), mat.cyanGlow);
+        hullRing.userData.partKey = 'chasis';
+        chasis.add(centerHub, hullRing);
+
+        const arm1 = new THREE.Mesh(new THREE.BoxGeometry(2.92, 0.1, 0.16), mat.chassisLight);
+        arm1.rotation.y = Math.PI / 4;
+        arm1.userData.partKey = 'chasis';
+        const arm2 = new THREE.Mesh(new THREE.BoxGeometry(2.92, 0.1, 0.16), mat.chassisLight);
+        arm2.rotation.y = -Math.PI / 4;
+        arm2.userData.partKey = 'chasis';
+        chasis.add(arm1, arm2);
+        root.add(chasis);
+
+        // Actuadores: 4 Corner Motors, Propellers & Protective Shrouds
+        const actuadores = new THREE.Group();
+        actuadores.name = 'actuadores';
+        const rotorCoords = [
+          [-1.02, 0.15, -1.02],
+          [1.02, 0.15, -1.02],
+          [-1.02, 0.15, 1.02],
+          [1.02, 0.15, 1.02]
+        ];
+        rotorCoords.forEach((pos, idx) => {
+          const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.24, 20), mat.servoBlue);
+          pod.position.set(...pos);
+          pod.userData.partKey = 'actuadores';
+
+          const shroud = new THREE.Mesh(
+            new THREE.RingGeometry(0.48, 0.54, 28),
+            new THREE.MeshStandardMaterial({ color: 0x94a3b8, side: THREE.DoubleSide, metalness: 0.7, roughness: 0.3 })
+          );
+          shroud.rotation.x = Math.PI / 2;
+          shroud.position.set(pos[0], pos[1] + 0.14, pos[2]);
+          shroud.userData.partKey = 'actuadores';
+
+          const blade = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.03, 0.12), mat.cyanGlow);
+          blade.position.set(pos[0], pos[1] + 0.15, pos[2]);
+          blade.name = 'droneRotor_' + idx;
+          blade.userData.partKey = 'actuadores';
+          actuadores.add(pod, shroud, blade);
+        });
+        root.add(actuadores);
+
+        // Energia: Central Top Battery Pack (Faulty initially)
+        const energia = new THREE.Group();
+        energia.name = 'energia';
+        const batPack = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.32, 0.88), faultRed);
+        batPack.position.y = 0.34;
+        batPack.name = 'faultIndicatorMesh';
+        batPack.userData.partKey = 'energia';
+        energia.add(batPack);
+        root.add(energia);
+
+        // Controlador: Internal Flight Controller
+        const controlador = new THREE.Group();
+        controlador.name = 'controlador';
+        const fcBoard = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.12, 0.68), mat.pcbGreen);
+        fcBoard.position.y = 0.05;
+        fcBoard.userData.partKey = 'controlador';
+        controlador.add(fcBoard);
+        root.add(controlador);
+
+        // Sensores: Bottom Gimbal Optical Camera
+        const sensores = new THREE.Group();
+        sensores.name = 'sensores';
+        const gimbalSphere = new THREE.Mesh(new THREE.SphereGeometry(0.28, 22, 22), mat.chassisLight);
+        gimbalSphere.position.set(0, -0.34, 0.25);
+        gimbalSphere.userData.partKey = 'sensores';
+        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.12, 20), mat.cyanGlow);
+        lens.rotation.x = Math.PI / 2;
+        lens.position.set(0, -0.34, 0.5);
+        lens.userData.partKey = 'sensores';
+        sensores.add(gimbalSphere, lens);
+        root.add(sensores);
+
+      } else {
+        // ROBOT 4: High-Detail Tracked Domestic Helper Bot
+        const chasis = new THREE.Group();
+        chasis.name = 'chasis';
+        const torsoCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.95, 1.35, 32), mat.chassisLight);
+        torsoCyl.position.y = 0.05;
+        torsoCyl.userData.partKey = 'chasis';
+
+        const waistRing = new THREE.Mesh(new THREE.CylinderGeometry(0.96, 0.96, 0.1, 32), mat.cyanGlow);
+        waistRing.position.y = -0.58;
+        waistRing.userData.partKey = 'chasis';
+        chasis.add(torsoCyl, waistRing);
+
+        // Twin Caterpillar Tracks with Inner Bogie Rollers
+        [-0.96, 0.96].forEach(xTrack => {
+          const track = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.45, 1.88), mat.rubberTire);
+          track.position.set(xTrack, -0.78, 0);
+          track.userData.partKey = 'chasis';
+          chasis.add(track);
+
+          [-0.65, 0, 0.65].forEach(zRoller => {
+            const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.35, 18), mat.chassisSilver);
+            roller.rotation.z = Math.PI / 2;
+            roller.position.set(xTrack, -0.78, zRoller);
+            roller.userData.partKey = 'chasis';
+            chasis.add(roller);
+          });
+        });
+        root.add(chasis);
+
+        // Controlador: Chest Core Brain (Faulty initially)
+        const controlador = new THREE.Group();
+        controlador.name = 'controlador';
+        const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.65, 0.22), mat.pcbGreen);
+        chestPlate.position.set(0, 0.15, 0.85);
+        chestPlate.userData.partKey = 'controlador';
+        const brainCore = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.38, 0.26), faultRed);
+        brainCore.position.set(0, 0.15, 0.88);
+        brainCore.name = 'faultIndicatorMesh';
+        brainCore.userData.partKey = 'controlador';
+        controlador.add(chestPlate, brainCore);
+        root.add(controlador);
+
+        // Energia: Backpack Battery
+        const energia = new THREE.Group();
+        energia.name = 'energia';
+        const backBat = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.85, 0.35), mat.yellowGlow);
+        backBat.position.set(0, 0.1, -0.88);
+        backBat.userData.partKey = 'energia';
+        energia.add(backBat);
+        root.add(energia);
+
+        // Sensores: Dome Head with Visor & Ear Mics
+        const sensores = new THREE.Group();
+        sensores.name = 'sensores';
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.75, 28, 22, 0, Math.PI * 2, 0, Math.PI / 2), mat.chassisDark);
+        dome.position.y = 0.78;
+        dome.userData.partKey = 'sensores';
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.24, 0.25), mat.cyanGlow);
+        visor.position.set(0, 0.98, 0.62);
+        visor.userData.partKey = 'sensores';
+        sensores.add(dome, visor);
+        root.add(sensores);
+
+        // Actuadores: Side Serving Trays / Articulated Paddles
+        const actuadores = new THREE.Group();
+        actuadores.name = 'actuadores';
+        [-1.08, 1.08].forEach(xArm => {
+          const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.18, 18, 18), mat.chassisSilver);
+          shoulder.position.set(xArm, 0.42, 0.1);
+          shoulder.userData.partKey = 'actuadores';
+
+          const paddle = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.75, 0.35), mat.servoBlue);
+          paddle.position.set(xArm, 0.05, 0.2);
+          paddle.userData.partKey = 'actuadores';
+          actuadores.add(shoulder, paddle);
+        });
+        root.add(actuadores);
+      }
+
+      return root;
+    }
+
+    function ensureActivitySceneInitialized() {
+      const container = document.getElementById('canvas-actividad-container');
+      if (!container) return;
+
+      if (!scenes.actividad) {
+        scenes.actividad = setupThreeViewport('canvas-actividad-container', { cameraZ: 5.4, autoRotate: false });
+        if (scenes.actividad) {
+          setupActivityRaycasting();
+        }
+      }
+      resizeThreeViewport(scenes.actividad);
+    }
+
+    function startActivity() {
+      playTone('click');
+      navigateTo('actividad');
+
+      requestAnimationFrame(() => {
+        ensureActivitySceneInitialized();
+        resetActivityLab();
+      });
+    }
+
+    function resetActivityLab() {
+      actCurrentMissionIdx = 0;
+      actRepairedStatus = [false, false, false, false];
+      actExplodedMode = false;
+
+      const expBtn = document.getElementById('btn-act-exploded');
+      if (expBtn) expBtn.classList.remove('tab-active');
+
+      document.getElementById('act-complete-banner').classList.add('hidden');
+      loadRepairMission(0);
+    }
+
+    function toggleActivityExplodedView() {
+      playTone('servo');
+      actExplodedMode = !actExplodedMode;
+      const btn = document.getElementById('btn-act-exploded');
+      if (btn) btn.classList.toggle('tab-active', actExplodedMode);
+    }
+
+    function loadRepairMission(index) {
+      actCurrentMissionIdx = index;
+      const mission = REPAIR_MISSIONS[index];
+      const isRepaired = actRepairedStatus[index];
+
+      // Rebuild distinct 3D robot model in viewport
+      const vp = scenes.actividad;
+      if (vp) {
+        if (vp.model) vp.scene.remove(vp.model);
+        vp.model = buildDistinctRepairRobot(mission.id);
+        vp.scene.add(vp.model);
+        updateActivity3DHighlights();
+      }
+
+      // Update Mission Info
+      document.getElementById('act-robot-name').textContent = mission.fullName;
+      document.getElementById('act-robot-symptom').textContent = mission.symptom;
+
+      const badge = document.getElementById('act-robot-status-badge');
+      const feedbackEl = document.getElementById('act-diagnostic-feedback');
+      if (isRepaired) {
+        badge.textContent = '✓ Reparado';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-950 text-yellow-300 border border-yellow-300';
+        feedbackEl.textContent = mission.repairSuccessMsg;
+        feedbackEl.className = 'text-xs sm:text-sm text-yellow-300 font-semibold leading-relaxed';
+      } else {
+        badge.textContent = '⚠ Averiado';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-950 text-red-300 border border-red-400';
+        feedbackEl.textContent = 'Observa el síntoma, gira el modelo 3D y toca la pieza averiada (o selecciónala abajo) para repararla.';
+        feedbackEl.className = 'text-xs sm:text-sm text-cyan-200 font-medium leading-relaxed';
+      }
+
+      updateActivityProgressUI();
+    }
+
+    function updateActivityProgressUI() {
+      const doneCount = actRepairedStatus.filter(Boolean).length;
+      const pct = Math.round((doneCount / REPAIR_MISSIONS.length) * 100);
+
+      document.getElementById('act-power-bar').style.width = pct + '%';
+      document.getElementById('act-power-pct').textContent = `${doneCount} / ${REPAIR_MISSIONS.length}`;
+      document.getElementById('act-calibrated-count').textContent = `${doneCount} / ${REPAIR_MISSIONS.length} Reparados`;
+
+      // Render 4 Robot Tabs
+      const tabsEl = document.getElementById('act-robots-tabs');
+      tabsEl.innerHTML = REPAIR_MISSIONS.map((m, idx) => {
+        const active = idx === actCurrentMissionIdx;
+        const done = actRepairedStatus[idx];
+        return `
+          <button onclick="selectRepairRobotTab(${idx})" class="px-3 py-2 rounded-xl border text-left flex items-center justify-between gap-1.5 transition cursor-pointer ${
+            active
+              ? 'bg-cyan-950/90 border-yellow-300 shadow-[0_0_12px_rgba(253,224,71,0.3)]'
+              : done
+              ? 'bg-[#091b29] border-cyan-400/70'
+              : 'bg-[#081220] border-slate-700 hover:border-cyan-400/60'
+          }">
+            <span class="text-xs font-bold ${done ? 'text-cyan-300' : 'text-slate-200'} truncate">${m.shortName}</span>
+            <span class="text-xs font-bold ${done ? 'text-yellow-300' : 'text-red-400'}">${done ? '✓' : '⚠'}</span>
+          </button>
+        `;
+      }).join('');
+
+      // Render 5 Diagnostic Part Choice Buttons
+      const mission = REPAIR_MISSIONS[actCurrentMissionIdx];
+      const isRepaired = actRepairedStatus[actCurrentMissionIdx];
+      const choicesEl = document.getElementById('act-part-choices');
+      choicesEl.innerHTML = PART_LABELS_SHORT.map(p => {
+        const isTargetAndFixed = isRepaired && p.key === mission.faultyPart;
+        return `
+          <button onclick="attemptRepairPart('${p.key}')" class="w-full px-3.5 py-2 rounded-xl border text-left flex items-center justify-between gap-2 transition cursor-pointer ${
+            isTargetAndFixed
+              ? 'bg-cyan-950 border-yellow-300 text-yellow-300'
+              : 'bg-[#081220] border-slate-700 hover:border-cyan-400 text-slate-200'
+          }">
+            <span class="text-xs sm:text-sm font-semibold">${p.label}</span>
+            <span class="text-[11px] font-bold ${isTargetAndFixed ? 'text-yellow-300' : 'text-cyan-300'}">
+              ${isTargetAndFixed ? '✓ Reparado' : 'Reparar'}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      if (doneCount === REPAIR_MISSIONS.length) {
+        document.getElementById('act-complete-banner').classList.remove('hidden');
+      }
+    }
+
+    function selectRepairRobotTab(idx) {
+      playTone('click');
+      loadRepairMission(idx);
+    }
+
+    function attemptRepairPart(partKey) {
+      const mission = REPAIR_MISSIONS[actCurrentMissionIdx];
+      const feedbackEl = document.getElementById('act-diagnostic-feedback');
+      const badge = document.getElementById('act-robot-status-badge');
+
+      if (actRepairedStatus[actCurrentMissionIdx]) {
+        playTone('click');
+        feedbackEl.textContent = 'Este robot ya está reparado y funcionando al 100 %. Selecciona otro robot arriba para continuar.';
+        return;
+      }
+
+      if (partKey === mission.faultyPart) {
+        actRepairedStatus[actCurrentMissionIdx] = true;
+        playTone('success');
+        badge.textContent = '✓ Reparado';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-950 text-yellow-300 border border-yellow-300';
+        feedbackEl.textContent = mission.repairSuccessMsg;
+        feedbackEl.className = 'text-xs sm:text-sm text-yellow-300 font-semibold leading-relaxed';
+        updateActivityProgressUI();
+        updateActivity3DHighlights();
+      } else {
+        playTone('error');
+        const hint = mission.wrongHints[partKey] || 'Esa pieza funciona correctamente. Revisa otra parte del robot.';
+        feedbackEl.textContent = `❌ Diagnóstico incorrecto: ${hint}`;
+        feedbackEl.className = 'text-xs sm:text-sm text-yellow-200 font-medium leading-relaxed';
+      }
+    }
+
+    function updateActivity3DHighlights() {
+      const vp = scenes.actividad;
+      if (!vp || !vp.model) return;
+      const mission = REPAIR_MISSIONS[actCurrentMissionIdx];
+      const isRepaired = actRepairedStatus[actCurrentMissionIdx];
+
+      vp.model.traverse(child => {
+        if (child.isMesh && child.userData.partKey) {
+          if (!child.userData.origMat) {
+            child.userData.origMat = child.material;
+          }
+          if (child.name === 'faultIndicatorMesh') {
+            child.material = child.userData.origMat.clone();
+            if (isRepaired) {
+              child.material.color.setHex(0x00e5ff);
+              if (child.material.emissive) {
+                child.material.emissive.setHex(0x00e5ff);
+                child.material.emissiveIntensity = 0.9;
+              }
+            } else {
+              child.material.color.setHex(0xef4444);
+              if (child.material.emissive) {
+                child.material.emissive.setHex(0xdc2626);
+                child.material.emissiveIntensity = 0.85;
+              }
+            }
+          } else if (isRepaired && child.userData.partKey === mission.faultyPart) {
+            child.material = child.userData.origMat.clone();
+            if (child.material.emissive) {
+              child.material.emissive.setHex(0xfde047);
+              child.material.emissiveIntensity = 0.55;
+            }
+          }
+        }
+      });
+    }
+
+    function findPartKeyFromObject(obj) {
+      let current = obj;
+      while (current) {
+        if (current.userData && current.userData.partKey) {
+          return current.userData.partKey;
+        }
+        if (current.name && ['controlador', 'sensores', 'actuadores', 'energia', 'chasis'].includes(current.name)) {
+          return current.name;
+        }
+        current = current.parent;
+      }
+      return null;
+    }
+
+    function setupActivityRaycasting() {
+      const vp = scenes.actividad;
+      if (!vp || !vp.renderer || !vp.renderer.domElement) return;
+
+      let downX = 0;
+      let downY = 0;
+
+      const getIntersectedPart = (clientX, clientY) => {
+        if (!vp.model) return null;
+        const rect = vp.renderer.domElement.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return null;
+
+        pointerVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointerVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerVec, vp.camera);
+
+        const intersects = raycaster.intersectObjects(vp.model.children, true);
+        for (let i = 0; i < intersects.length; i++) {
+          const key = findPartKeyFromObject(intersects[i].object);
+          if (key) return key;
+        }
+        return null;
+      };
+
+      vp.renderer.domElement.addEventListener('pointerdown', e => {
+        downX = e.clientX;
+        downY = e.clientY;
+      });
+
+      vp.renderer.domElement.addEventListener('pointerup', e => {
+        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 6) {
+          const hitKey = getIntersectedPart(e.clientX, e.clientY);
+          if (hitKey) attemptRepairPart(hitKey);
+        }
+      });
+
+      vp.renderer.domElement.addEventListener('pointermove', e => {
+        const hitKey = getIntersectedPart(e.clientX, e.clientY);
+        const label = document.getElementById('act-hover-label');
+        if (!label) return;
+        const found = PART_LABELS_SHORT.find(p => p.key === hitKey);
+        if (found) {
+          label.textContent = found.label;
+          label.classList.remove('hidden');
+          vp.renderer.domElement.style.cursor = 'pointer';
+        } else {
+          label.classList.add('hidden');
+          vp.renderer.domElement.style.cursor = 'grab';
+        }
+      });
+    }
+
+    /* ============================================================================
+       8. MAIN 3D ANIMATION LOOP
+    ============================================================================ */
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.1);
+      const elapsed = clock.getElapsedTime();
+
+      // 1. Animate Portada 3D Robot (including subtle eye & antenna pulse + AR Disassemble mode)
+      if (scenes.portada && !document.getElementById('screen-portada').classList.contains('hidden')) {
+        const vp = scenes.portada;
+        if (!vp.isDragging) {
+          vp.rotY += dt * 0.45;
+        }
+        if (vp.model) {
+          vp.model.rotation.y = vp.rotY;
+          vp.model.rotation.x = vp.rotX;
+          vp.model.position.y = Math.sin(elapsed * 2) * 0.06;
+
+          const headGrp = vp.model.getObjectByName('sensores');
+          const ctrlGrp = vp.model.getObjectByName('controlador');
+          const enerGrp = vp.model.getObjectByName('energia');
+          const actGrp = vp.model.getObjectByName('actuadores');
+          const chasisGrp = vp.model.getObjectByName('chasis');
+
+          const targetHeadY = portadaARDisassembled ? 2.15 : 1.38;
+          const targetCtrlZ = portadaARDisassembled ? 1.25 : 0.25;
+          const targetCtrlY = portadaARDisassembled ? 0.55 : 0.35;
+          const targetEnerZ = portadaARDisassembled ? 1.25 : 0.2;
+          const targetEnerY = portadaARDisassembled ? -0.35 : -0.22;
+          const targetActScale = portadaARDisassembled ? 1.32 : 1.0;
+          const targetChasisY = portadaARDisassembled ? -0.35 : 0.0;
+
+          if (headGrp) headGrp.position.y += (targetHeadY - headGrp.position.y) * 0.12;
+          if (ctrlGrp) {
+            ctrlGrp.position.z += (targetCtrlZ - ctrlGrp.position.z) * 0.12;
+            ctrlGrp.position.y += (targetCtrlY - ctrlGrp.position.y) * 0.12;
+          }
+          if (enerGrp) {
+            enerGrp.position.z += (targetEnerZ - enerGrp.position.z) * 0.12;
+            enerGrp.position.y += (targetEnerY - enerGrp.position.y) * 0.12;
+          }
+          if (actGrp) actGrp.scale.x += (targetActScale - actGrp.scale.x) * 0.12;
+          if (chasisGrp) chasisGrp.position.y += (targetChasisY - chasisGrp.position.y) * 0.12;
+
+          const p0 = vp.model.getObjectByName('robotEyePupil_0');
+          const p1 = vp.model.getObjectByName('robotEyePupil_1');
+          const eyeScale = 0.92 + Math.sin(elapsed * 4) * 0.1;
+          if (p0) p0.scale.setScalar(eyeScale);
+          if (p1) p1.scale.setScalar(eyeScale);
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+
+      // 2. Animate Contenido 3D Model & Interactive Part Demos
+      if (scenes.contenido && !document.getElementById('screen-contenido').classList.contains('hidden')) {
+        const vp = scenes.contenido;
+        if (vp.model) {
+          vp.model.rotation.y = vp.rotY;
+          vp.model.rotation.x = vp.rotX;
+
+          if (vp.demoActive) {
+            vp.demoTimer -= dt;
+            if (vp.demoTimer <= 0) {
+              vp.demoActive = false;
+              document.getElementById('demo-status-text').textContent = 'Demostración finalizada • Pulsa "Activar Demo" para repetir';
+            }
+          }
+
+          if (content3DMode === 'isolated') {
+            if (currentPartIdx === 0) {
+              const core = vp.model.getObjectByName('ctrlCore');
+              if (core) {
+                const speed = vp.demoActive ? 10 : 2.5;
+                core.scale.setScalar(1 + Math.sin(elapsed * speed) * (vp.demoActive ? 0.16 : 0.05));
+              }
+              for (let i = 0; i < 4; i++) {
+                const led = vp.model.getObjectByName('ctrlLed_' + i);
+                if (led) {
+                  led.visible = !vp.demoActive || Math.floor(elapsed * 12 + i) % 2 === 0;
+                }
+              }
+            } else if (currentPartIdx === 1) {
+              for (let w = 0; w < 3; w++) {
+                const ring = vp.model.getObjectByName('isoWave_' + w);
+                if (ring) {
+                  const speed = vp.demoActive ? 2.4 : 0.7;
+                  const progress = ((elapsed * speed) + w * 0.33) % 1;
+                  ring.position.x = 0.22 + progress * 1.35;
+                  ring.scale.setScalar(0.65 + progress * 0.85);
+                  ring.material.opacity = (1 - progress) * 0.9;
+                }
+              }
+            } else if (currentPartIdx === 2) {
+              const spinSpeed = vp.demoActive ? 8.5 : 1.8;
+              const rotor = vp.model.getObjectByName('motorRotorCoils');
+              const g1 = vp.model.getObjectByName('isoGear1');
+              const g2 = vp.model.getObjectByName('isoGear2');
+              const prop = vp.model.getObjectByName('isoPropeller');
+              const arrows = vp.model.getObjectByName('motorRotationArrows');
+              const pulse = vp.model.getObjectByName('motorEnergyPulse');
+
+              if (rotor) rotor.rotation.x += dt * spinSpeed;
+              if (g1) g1.rotation.x += dt * spinSpeed;
+              if (g2) g2.rotation.x -= dt * spinSpeed * 1.35;
+              if (prop) prop.rotation.x += dt * spinSpeed;
+              if (arrows) arrows.rotation.x += dt * (spinSpeed * 0.5);
+              if (pulse) {
+                if (vp.demoActive) {
+                  const p = (elapsed * 3) % 1;
+                  pulse.scale.setScalar(0.85 + p * 0.75);
+                  pulse.material.opacity = (1 - p) * 0.85;
+                } else {
+                  pulse.material.opacity = 0;
+                }
+              }
+            } else if (currentPartIdx === 3) {
+              for (let b = 0; b < 4; b++) {
+                const bar = vp.model.getObjectByName('batteryCell_' + b);
+                if (bar) {
+                  const s = vp.demoActive ? 0.5 + 0.5 * Math.abs(Math.sin(elapsed * 6 - b * 0.6)) : 1.0;
+                  bar.scale.x = Math.max(0.15, s);
+                }
+              }
+            } else if (currentPartIdx === 4) {
+              for (let w = 0; w < 4; w++) {
+                const wh = vp.model.getObjectByName('isoWheel_' + w);
+                if (wh) wh.rotation.x += dt * (vp.demoActive ? 6.5 : 1.2);
+              }
+            }
+          } else {
+            // Ubicación en Robot mode animations
+            if (vp.demoActive) {
+              if (currentPartIdx === 1) {
+                const scanRing = vp.model.getObjectByName('robotHeadScanRing');
+                if (scanRing) {
+                  const wave = (elapsed * 2.5) % 1;
+                  scanRing.position.z = 0.65 + wave * 0.85;
+                  scanRing.scale.setScalar(0.8 + wave * 0.8);
+                  scanRing.material.opacity = (1 - wave) * 0.85;
+                }
+              } else if (currentPartIdx === 2) {
+                const lArm = vp.model.getObjectByName('leftArm');
+                const rArm = vp.model.getObjectByName('rightArm');
+                if (lArm) lArm.rotation.x = Math.sin(elapsed * 7) * 0.55;
+                if (rArm) rArm.rotation.x = -Math.sin(elapsed * 7) * 0.55;
+              } else if (currentPartIdx === 4) {
+                vp.model.position.y = Math.sin(elapsed * 5) * 0.08;
+              }
+            }
+          }
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+
+      // 3. Animate Actividad 3D Repair Workshop (4 Distinct Robots + Live Life Animation when Repaired)
+      if (scenes.actividad && !document.getElementById('screen-actividad').classList.contains('hidden')) {
+        const vp = scenes.actividad;
+        if (vp.model) {
+          const mission = REPAIR_MISSIONS[actCurrentMissionIdx];
+          const isRepaired = actRepairedStatus[actCurrentMissionIdx];
+
+          const sensGrp = vp.model.getObjectByName('sensores');
+          const ctrlGrp = vp.model.getObjectByName('controlador');
+          const enerGrp = vp.model.getObjectByName('energia');
+          const actGrp = vp.model.getObjectByName('actuadores');
+
+          const targetSpread = actExplodedMode ? 0.55 : 0.0;
+          if (sensGrp) sensGrp.position.y += (targetSpread - sensGrp.position.y) * 0.12;
+          if (ctrlGrp) ctrlGrp.position.z += (targetSpread - ctrlGrp.position.z) * 0.12;
+          if (enerGrp) enerGrp.position.z += (-targetSpread - enerGrp.position.z) * 0.12;
+
+          // Live motion once repaired!
+          if (isRepaired) {
+            if (mission.id === 'rover') {
+              vp.model.position.y = Math.sin(elapsed * 5) * 0.04;
+              if (sensGrp) sensGrp.rotation.y = Math.sin(elapsed * 2.5) * 0.45;
+            } else if (mission.id === 'brazo') {
+              if (actGrp) actGrp.rotation.y = Math.sin(elapsed * 2.5) * 0.5;
+            } else if (mission.id === 'dron') {
+              vp.model.position.y = 0.25 + Math.sin(elapsed * 4) * 0.12;
+              for (let r = 0; r < 4; r++) {
+                const rotor = vp.model.getObjectByName('droneRotor_' + r);
+                if (rotor) rotor.rotation.y += dt * 18;
+              }
+            } else if (mission.id === 'asistente') {
+              vp.model.rotation.y = Math.sin(elapsed * 1.8) * 0.35;
+              if (actGrp) actGrp.rotation.x = Math.sin(elapsed * 4) * 0.25;
+            }
+          } else {
+            vp.model.position.y *= 0.9;
+          }
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+
+      // 4. Animate Video 3D Interactive Capsule
+      if (scenes.video && !document.getElementById('screen-video').classList.contains('hidden')) {
+        const vp = scenes.video;
+        if (videoPlaying) {
+          videoElapsed += dt;
+          if (videoElapsed >= VIDEO_TOTAL_DURATION) {
+            videoElapsed = VIDEO_TOTAL_DURATION;
+            videoPlaying = false;
+            document.getElementById('btn-video-play-label').textContent = '▶ Repetir';
+          }
+
+          const currentIdx = Math.min(VIDEO_SCENES.length - 1, Math.floor(videoElapsed / 8));
+          if (currentIdx !== videoLastSceneIndex) {
+            videoLastSceneIndex = currentIdx;
+            applyVideoScene(currentIdx, true);
+          }
+
+          const pct = (videoElapsed / VIDEO_TOTAL_DURATION) * 100;
+          document.getElementById('video-progress-fill').style.width = pct + '%';
+          const secs = Math.floor(videoElapsed);
+          document.getElementById('video-time-current').textContent = '0:' + String(secs).padStart(2, '0');
+        }
+
+        if (vp.model) {
+          if (!vp.isDragging) {
+            vp.rotY += dt * 0.5;
+          }
+          vp.model.rotation.y = vp.rotY;
+          vp.model.rotation.x = 0.14;
+
+          const ctrlGrp = vp.model.getObjectByName('controlador');
+          const enerGrp = vp.model.getObjectByName('energia');
+          const targetZ = videoExplodedTarget ? 1.05 : 0.25;
+          if (ctrlGrp) ctrlGrp.position.z += (targetZ - ctrlGrp.position.z) * 0.12;
+          if (enerGrp) enerGrp.position.z += ((videoExplodedTarget ? 1.05 : 0.2) - enerGrp.position.z) * 0.12;
+
+          const activePart = VIDEO_SCENES[Math.max(0, videoLastSceneIndex)]?.partKey;
+          const scanRing = vp.model.getObjectByName('robotHeadScanRing');
+          if (scanRing) {
+            if (activePart === 'sensores') {
+              const wave = (elapsed * 2.2) % 1;
+              scanRing.position.z = 0.65 + wave * 0.85;
+              scanRing.scale.setScalar(0.8 + wave * 0.8);
+              scanRing.material.opacity = (1 - wave) * 0.85;
+            } else {
+              scanRing.material.opacity = 0;
+            }
+          }
+
+          const lArm = vp.model.getObjectByName('leftArm');
+          const rArm = vp.model.getObjectByName('rightArm');
+          if (lArm && rArm) {
+            if (activePart === 'actuadores') {
+              lArm.rotation.x = Math.sin(elapsed * 6) * 0.5;
+              rArm.rotation.x = -Math.sin(elapsed * 6) * 0.5;
+            } else {
+              lArm.rotation.x *= 0.9;
+              rArm.rotation.x *= 0.9;
+            }
+          }
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+    }
+
+    // Initialize Portada 3D on window load (Contenido & Actividad initialize safely when opened)
+    window.onload = function () {
+      scenes.portada = setupThreeViewport('canvas-portada-container', { cameraZ: 5.2, autoRotate: true });
+      if (scenes.portada) {
+        scenes.portada.model = buildFullEducationalRobot();
+        scenes.portada.scene.add(scenes.portada.model);
+      }
+      animate();
+    };
+  </script>
+</body>
+</html>
