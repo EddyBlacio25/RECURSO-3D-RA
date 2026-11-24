@@ -144,6 +144,27 @@
       animation: pulseGlow 2.4s infinite ease-in-out;
     }
 
+    /* Locked menu cards */
+    .menu-card-locked {
+      opacity: 0.45;
+      filter: grayscale(0.7);
+      cursor: not-allowed !important;
+      border-color: rgba(148, 163, 184, 0.35) !important;
+      box-shadow: none !important;
+    }
+    .menu-card-locked:hover { transform: none !important; border-color: rgba(148, 163, 184, 0.35) !important; }
+    .menu-card-unlocked-anim { animation: unlockPulse 1.6s ease-out 2; }
+    @keyframes unlockPulse {
+      0% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.8); }
+      100% { box-shadow: 0 0 0 22px rgba(253, 224, 71, 0); }
+    }
+    #unlock-toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(30px);
+      opacity: 0; pointer-events: none; z-index: 100; transition: all .35s ease;
+      max-width: 92vw;
+    }
+    #unlock-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     canvas {
       display: block;
       width: 100% !important;
@@ -324,14 +345,14 @@
             MENÚ PRINCIPAL
           </h2>
           <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
-            Selecciona una sección para explorar la anatomía del robot en 3D, observar la cápsula explicativa, reparar robots averiados o realizar la evaluación.
+            Sigue la ruta en orden: primero revisa el Contenido, luego mira el Video, después resuelve la Actividad y finalmente realiza la Evaluación. Cada sección se desbloquea al completar la anterior.
           </p>
         </div>
 
         <!-- 4 Main Module Cards in Requested Order: Contenido -> Video -> Actividad -> Evaluación -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 text-left">
           <!-- 1. CONTENIDO -->
-          <button onclick="navigateTo('contenido')" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+          <button id="menu-card-contenido" onclick="navigateTo('contenido')" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
             <div class="w-14 h-14 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
               <svg class="w-7 h-7 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -339,7 +360,8 @@
             </div>
             <div class="space-y-1">
               <div class="text-xs font-display font-bold text-yellow-300">1. EXPLORACIÓN 3D</div>
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Contenido</h3>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">Contenido <span id="lock-badge-contenido" class="text-base" aria-hidden="true"></span></h3>
+              <div id="lock-hint-contenido" class="text-[11px] font-bold text-yellow-300"></div>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Descubre las 5 partes del robot en 3D con narración por voz y el ejemplo práctico de Entrada → Procesamiento → Salida.
               </p>
@@ -347,7 +369,7 @@
           </button>
 
           <!-- 2. VIDEO -->
-          <button onclick="openVideoLesson()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+          <button id="menu-card-video" onclick="openVideoLesson()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
             <div class="w-14 h-14 rounded-2xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
               <svg class="w-7 h-7 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <polygon points="5 3 19 12 5 21 5 3" stroke-linejoin="round" />
@@ -355,7 +377,8 @@
             </div>
             <div class="space-y-1">
               <div class="text-xs font-display font-bold text-cyan-300">2. CÁPSULA ANIMADA 3D</div>
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Video</h3>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">Video <span id="lock-badge-video" class="text-base" aria-hidden="true">🔒</span></h3>
+              <div id="lock-hint-video" class="text-[11px] font-bold text-yellow-300"></div>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Observa la explicación animada en 3D con subtítulos y narración guiada sobre cómo trabaja cada pieza del robot.
               </p>
@@ -363,7 +386,7 @@
           </button>
 
           <!-- 3. ACTIVIDAD -->
-          <button onclick="startActivity()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+          <button id="menu-card-actividad" onclick="startActivity()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
             <div class="w-14 h-14 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
               <svg class="w-7 h-7 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
@@ -371,7 +394,8 @@
             </div>
             <div class="space-y-1">
               <div class="text-xs font-display font-bold text-yellow-300">3. TALLER DE REPARACIÓN 3D</div>
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Actividad</h3>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">Actividad <span id="lock-badge-actividad" class="text-base" aria-hidden="true">🔒</span></h3>
+              <div id="lock-hint-actividad" class="text-[11px] font-bold text-yellow-300"></div>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Diagnostica y repara 4 modelos de robots diferentes en 3D identificando qué sistema está fallando.
               </p>
@@ -379,7 +403,7 @@
           </button>
 
           <!-- 4. EVALUACIÓN -->
-          <button onclick="startEvaluation()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
+          <button id="menu-card-evaluacion" onclick="startEvaluation()" class="cyber-panel p-5 sm:p-6 hover:border-yellow-300 transition group cursor-pointer flex items-start gap-4 text-left">
             <div class="w-14 h-14 rounded-2xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
               <svg class="w-7 h-7 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -387,7 +411,8 @@
             </div>
             <div class="space-y-1">
               <div id="btn-menu-eval-sub" class="text-xs font-display font-bold text-cyan-300">4. EVALUACIÓN SUMATIVA (P1–P5)</div>
-              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white">Evaluación</h3>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">Evaluación <span id="lock-badge-evaluacion" class="text-base" aria-hidden="true">🔒</span></h3>
+              <div id="lock-hint-evaluacion" class="text-[11px] font-bold text-yellow-300"></div>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Responde 5 preguntas clave y recibe retroalimentación general según tu puntuación final.
               </p>
@@ -860,12 +885,18 @@
             <button onclick="toggleVideoVoice()" class="btn-cyber px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm cursor-pointer">
               <span id="btn-video-voice-label">🔊 Voz: Activada</span>
             </button>
+
+            <button id="btn-video-continue" onclick="startActivity()" class="hidden btn-cyber-yellow px-6 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm cursor-pointer sparkle-anim">
+              Continuar a la Actividad →
+            </button>
           </div>
         </div>
       </div>
     </section>
 
   </main>
+
+  <div id="unlock-toast" class="cyber-panel-yellow px-5 py-3 text-sm font-display font-bold text-yellow-200 text-center"></div>
 
   <script>
     /* ============================================================================
@@ -877,6 +908,71 @@
       actividad: null,
       video: null
     };
+
+    /* ---- Ruta de aprendizaje: Contenido -> Video -> Actividad -> Evaluación ---- */
+    const progress = { contenido: false, video: false, actividad: false };
+    const contentVisited = new Set();
+    const LOCK_RULES = {
+      contenido:  { unlocked: () => true, hint: '' },
+      video:      { unlocked: () => progress.contenido, hint: 'Completa el Contenido para desbloquear' },
+      actividad:  { unlocked: () => progress.video, hint: 'Termina el Video para desbloquear' },
+      evaluacion: { unlocked: () => progress.actividad, hint: 'Completa la Actividad para desbloquear' }
+    };
+    const LOCK_MESSAGES = {
+      video: '🔒 Primero revisa todo el Contenido (5 partes + Ejemplo)',
+      actividad: '🔒 Primero termina de ver el Video',
+      evaluacion: '🔒 Primero repara los 4 robots de la Actividad'
+    };
+    let toastTimer = null;
+
+    function showToast(msg) {
+      const t = document.getElementById('unlock-toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    function isSectionUnlocked(key) {
+      return LOCK_RULES[key].unlocked();
+    }
+
+    function guardSection(key) {
+      if (isSectionUnlocked(key)) return true;
+      playTone('error');
+      showToast(LOCK_MESSAGES[key]);
+      return false;
+    }
+
+    function updateMenuLocks(animateKey) {
+      ['contenido', 'video', 'actividad', 'evaluacion'].forEach(key => {
+        const card = document.getElementById('menu-card-' + key);
+        if (!card) return;
+        const unlocked = isSectionUnlocked(key);
+        card.classList.toggle('menu-card-locked', !unlocked);
+        card.setAttribute('aria-disabled', unlocked ? 'false' : 'true');
+        const badge = document.getElementById('lock-badge-' + key);
+        const hint = document.getElementById('lock-hint-' + key);
+        const done = progress[key] || (key === 'evaluacion' && evalPassedPermanently);
+        if (badge) badge.textContent = unlocked ? (done ? '✅' : '') : '🔒';
+        if (hint) hint.textContent = unlocked ? '' : LOCK_RULES[key].hint;
+        if (animateKey === key) {
+          card.classList.add('menu-card-unlocked-anim');
+          setTimeout(() => card.classList.remove('menu-card-unlocked-anim'), 3400);
+        }
+      });
+    }
+
+    function completeStage(stage) {
+      if (progress[stage]) return;
+      progress[stage] = true;
+      const next = { contenido: 'video', video: 'actividad', actividad: 'evaluacion' }[stage];
+      const names = { video: 'Video', actividad: 'Actividad', evaluacion: 'Evaluación' };
+      playTone('success');
+      showToast('🔓 ¡Se desbloqueó ' + names[next] + '!');
+      updateMenuLocks(next);
+    }
 
     let soundEnabled = true;
     let audioCtx = null;
@@ -1003,6 +1099,10 @@
         const el = document.getElementById('screen-' + s);
         if (el) el.classList.toggle('hidden', s !== screenKey);
       });
+
+      if (screenKey === 'menu') {
+        updateMenuLocks();
+      }
 
       if (screenKey === 'portada' && scenes.portada) {
         requestAnimationFrame(() => resizeThreeViewport(scenes.portada));
@@ -1659,11 +1759,17 @@
       }
     }
 
+    function markContentVisited(i) {
+      contentVisited.add(i);
+      if (contentVisited.size >= 6) completeStage('contenido');
+    }
+
     function selectPart(idx) {
       playTone('click');
       stopPartSpeech();
       inEjemploTab = false;
       currentPartIdx = idx;
+      markContentVisited(idx);
 
       if (remedialReviewActive) {
         remedialReviewedSet.add(idx);
@@ -1698,6 +1804,7 @@
       playTone('click');
       stopPartSpeech();
       inEjemploTab = true;
+      markContentVisited(5);
 
       for (let i = 0; i < 6; i++) {
         const tab = document.getElementById('tab-part-' + i);
@@ -1708,7 +1815,7 @@
       document.getElementById('contenido-ejemplo-card').classList.remove('hidden');
 
       document.getElementById('btn-prev-part').style.visibility = 'visible';
-      document.getElementById('btn-next-part').textContent = 'Ir a Evaluación →';
+      document.getElementById('btn-next-part').textContent = progress.contenido ? 'Ir al Video →' : 'Repasar partes pendientes →';
 
       content3DMode = 'robot';
       document.getElementById('btn-mode-isolated').classList.remove('tab-active');
@@ -1727,7 +1834,13 @@
 
     function nextPart() {
       if (inEjemploTab) {
-        startEvaluation();
+        if (progress.contenido) {
+          openVideoLesson();
+        } else {
+          const pending = [0, 1, 2, 3, 4].find(i => !contentVisited.has(i));
+          showToast('Revisa todas las partes del robot para continuar');
+          selectPart(pending === undefined ? 0 : pending);
+        }
       } else if (currentPartIdx < 4) {
         selectPart(currentPartIdx + 1);
       } else {
@@ -1907,11 +2020,20 @@
     }
 
     function openVideoLesson() {
+      if (!guardSection('video')) return;
       navigateTo('video');
+      const cb = document.getElementById('btn-video-continue');
+      if (cb) cb.classList.toggle('hidden', !progress.video);
       requestAnimationFrame(() => {
         ensureVideoSceneInitialized();
         restartVideoLesson();
       });
+    }
+
+    function onVideoFinished() {
+      completeStage('video');
+      const cb = document.getElementById('btn-video-continue');
+      if (cb) cb.classList.remove('hidden');
     }
 
     function exitVideoLesson() {
@@ -1966,6 +2088,7 @@
       const rect = e.currentTarget.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       videoElapsed = ratio * VIDEO_TOTAL_DURATION;
+      if (ratio >= 0.99) onVideoFinished();
       const idx = Math.min(VIDEO_SCENES.length - 1, Math.floor(videoElapsed / 8));
       videoLastSceneIndex = idx;
       applyVideoScene(idx, videoPlaying);
@@ -2015,6 +2138,7 @@
     let evalPassedPermanently = false;
 
     function startEvaluation() {
+      if (!guardSection('evaluacion')) return;
       playTone('click');
       navigateTo('evaluacion');
 
@@ -2631,6 +2755,7 @@
     }
 
     function startActivity() {
+      if (!guardSection('actividad')) return;
       playTone('click');
       navigateTo('actividad');
 
@@ -2743,6 +2868,7 @@
 
       if (doneCount === REPAIR_MISSIONS.length) {
         document.getElementById('act-complete-banner').classList.remove('hidden');
+        completeStage('actividad');
       }
     }
 
@@ -3092,6 +3218,7 @@
             videoElapsed = VIDEO_TOTAL_DURATION;
             videoPlaying = false;
             document.getElementById('btn-video-play-label').textContent = '▶ Repetir';
+            onVideoFinished();
           }
 
           const currentIdx = Math.min(VIDEO_SCENES.length - 1, Math.floor(videoElapsed / 8));
