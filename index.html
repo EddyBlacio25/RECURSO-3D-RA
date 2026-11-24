@@ -2102,31 +2102,36 @@
         q: '1. ¿Qué componente actúa como el "cerebro" del robot y procesa las instrucciones?',
         options: ['El chasis metálico', 'El controlador (microprocesador)', 'Las ruedas de tracción'],
         correct: 1,
-        feedback: '¡Correcto! El controlador analiza la información de los sensores y envía órdenes a los actuadores.'
+        feedback: '¡Correcto! El controlador analiza la información de los sensores y envía órdenes a los actuadores.',
+        topic: '1. Controlador'
       },
       {
         q: '2. Si un robot detecta que hay una pared al frente antes de chocar, ¿qué parte utilizó?',
         options: ['Los sensores', 'La fuente de energía', 'El chasis'],
         correct: 0,
-        feedback: '¡Exacto! Los sensores permiten al robot percibir obstáculos, luz o sonidos de su entorno.'
+        feedback: '¡Exacto! Los sensores permiten al robot percibir obstáculos, luz o sonidos de su entorno.',
+        topic: '2. Sensores'
       },
       {
         q: '3. ¿Cuál es la función principal de los actuadores en un robot?',
         options: ['Almacenar electricidad', 'Transformar energía en movimiento físico', 'Proteger los cables internos'],
         correct: 1,
-        feedback: '¡Muy bien! Motores, servomotores, brazos y ruedas son actuadores que producen movimiento.'
+        feedback: '¡Muy bien! Motores, servomotores, brazos y ruedas son actuadores que producen movimiento.',
+        topic: '3. Actuadores'
       },
       {
         q: '4. ¿Qué ocurre si se agota por completo la fuente de energía (batería) del robot?',
         options: ['El robot sigue funcionando más rápido', 'Ningún componente electrónico ni motor recibe electricidad', 'Los sensores se convierten en motores'],
         correct: 1,
-        feedback: '¡Correcto! Sin fuente de energía, ni el controlador ni los sensores o actuadores pueden operar.'
+        feedback: '¡Correcto! Sin fuente de energía, ni el controlador ni los sensores o actuadores pueden operar.',
+        topic: '4. Energía'
       },
       {
         q: '5. ¿Qué parte funciona como el "esqueleto" que sostiene y protege todas las piezas internas?',
         options: ['El chasis o estructura', 'El sensor ultrasónico', 'El cable USB'],
         correct: 0,
-        feedback: '¡Excelente! El chasis brinda soporte mecánico y protección a todo el sistema robótico.'
+        feedback: '¡Excelente! El chasis brinda soporte mecánico y protección a todo el sistema robótico.',
+        topic: '5. Chasis'
       }
     ];
 
@@ -2193,7 +2198,7 @@
       item.options.forEach((_, idx) => {
         const btn = document.getElementById('eval-opt-' + idx);
         btn.disabled = true;
-        if (isCorrect && idx === item.correct) {
+        if (idx === item.correct) {
           btn.classList.add('border-emerald-400', 'bg-emerald-950/60', 'text-emerald-200');
         } else if (!isCorrect && idx === selectedIdx) {
           btn.classList.add('border-red-400', 'bg-red-950/60', 'text-red-200');
@@ -2207,9 +2212,14 @@
           ? 'bg-emerald-950/50 border-emerald-400/70 text-emerald-200'
           : 'bg-red-950/50 border-red-400/70 text-red-200'
       }`;
-      fbBox.textContent = isCorrect
-        ? item.feedback
-        : 'Respuesta incorrecta. Continúa con la siguiente pregunta y al finalizar recibirás tu retroalimentación.';
+      const correctText = item.options[item.correct];
+      fbBox.innerHTML = isCorrect
+        ? `<div class="font-display font-bold text-base mb-1">✅ ¡Respuesta correcta!</div>
+           <div>${item.feedback}</div>`
+        : `<div class="font-display font-bold text-base mb-1">❌ Respuesta incorrecta</div>
+           <div>La respuesta correcta era: <strong>${correctText}</strong>.</div>
+           <div class="mt-1">${item.feedback.replace(/^[¡!][^!]*!\s*/, '')}</div>
+           <div class="mt-2 font-semibold text-yellow-200">📘 Repasa mejor el contenido de la parte «${item.topic}» en la sección Contenido.</div>`;
 
       const nextBtn = document.getElementById('btn-eval-next');
       nextBtn.classList.remove('hidden');
