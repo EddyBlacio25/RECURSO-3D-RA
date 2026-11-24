@@ -2198,7 +2198,7 @@
       item.options.forEach((_, idx) => {
         const btn = document.getElementById('eval-opt-' + idx);
         btn.disabled = true;
-        if (idx === item.correct) {
+        if (isCorrect && idx === item.correct) {
           btn.classList.add('border-emerald-400', 'bg-emerald-950/60', 'text-emerald-200');
         } else if (!isCorrect && idx === selectedIdx) {
           btn.classList.add('border-red-400', 'bg-red-950/60', 'text-red-200');
@@ -2212,14 +2212,11 @@
           ? 'bg-emerald-950/50 border-emerald-400/70 text-emerald-200'
           : 'bg-red-950/50 border-red-400/70 text-red-200'
       }`;
-      const correctText = item.options[item.correct];
       fbBox.innerHTML = isCorrect
         ? `<div class="font-display font-bold text-base mb-1">✅ ¡Respuesta correcta!</div>
            <div>${item.feedback}</div>`
         : `<div class="font-display font-bold text-base mb-1">❌ Respuesta incorrecta</div>
-           <div>La respuesta correcta era: <strong>${correctText}</strong>.</div>
-           <div class="mt-1">${item.feedback.replace(/^[¡!][^!]*!\s*/, '')}</div>
-           <div class="mt-2 font-semibold text-yellow-200">📘 Repasa mejor el contenido de la parte «${item.topic}» en la sección Contenido.</div>`;
+           <div class="font-semibold text-yellow-200">📘 Revisa nuevamente los contenidos para reforzar lo aprendido.</div>`;
 
       const nextBtn = document.getElementById('btn-eval-next');
       nextBtn.classList.remove('hidden');
